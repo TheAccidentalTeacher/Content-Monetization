@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christian Content & Book Research Platform</title>
+    <meta http-equiv="refresh" content="0;url=src/index.html">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-cross"></i>
+                <span>Alana Terry Content Hub</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="#content" class="nav-link" data-section="content">
+                    <i class="fas fa-edit"></i> Content
+                </a>
+                <a href="#monetization" class="nav-link" data-section="monetization">
+                    <i class="fas fa-dollar-sign"></i> Revenue
+                </a>
+                <a href="#calendar" class="nav-link" data-section="calendar">
+                    <i class="fas fa-calendar-alt"></i> Calendar
+                </a>
+                <a href="#analytics" class="nav-link" data-section="analytics">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </a>
+            </nav>
+            <div class="user-menu">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                    <span>Alana Terry</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1>Dashboard Overview</h1>
+                <p>Welcome back, Alana! Here's your content and revenue summary.</p>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card revenue">
+                    <div class="metric-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Monthly Revenue</h3>
+                        <div class="metric-value">$2,847</div>
+                        <div class="metric-change positive">+18.5% from last month</div>
+                    </div>
+                </div>
+
+                <div class="metric-card content">
+                    <div class="metric-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Content Published</h3>
+                        <div class="metric-value">23</div>
+                        <div class="metric-change positive">+4 this week</div>
+                    </div>
+                </div>
+
+                <div class="metric-card engagement">
+                    <div class="metric-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Total Engagement</h3>
+                        <div class="metric-value">15.2K</div>
+                        <div class="metric-change positive">+12.3% this month</div>
+                    </div>
+                </div>
+
+                <div class="metric-card subscribers">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Email Subscribers</h3>
+                        <div class="metric-value">3,456</div>
+                        <div class="metric-change positive">+89 this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="generateContent()">
+                        <i class="fas fa-magic"></i>
+                        Generate Daily Content
+                    </button>
+                    <button class="action-btn secondary" onclick="schedulePost()">
+                        <i class="fas fa-clock"></i>
+                        Schedule Post
+                    </button>
+                    <button class="action-btn secondary" onclick="viewAnalytics()">
+                        <i class="fas fa-chart-bar"></i>
+                        View Analytics
+                    </button>
+                    <button class="action-btn secondary" onclick="manageProducts()">
+                        <i class="fas fa-box"></i>
+                        Manage Products
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h2>Recent Activity</h2>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>New devotional published</h4>
+                            <p>"Finding Peace in Uncertain Times" - Christian Books Today</p>
+                            <span class="activity-time">2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Affiliate commission earned</h4>
+                            <p>$45.50 from "Praying Like Jesus" book sales</p>
+                            <span class="activity-time">5 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>New premium subscribers</h4>
+                            <p>12 new members joined this week</p>
+                            <span class="activity-time">1 day ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Generation Section -->
+        <section id="content" class="content-section">
+            <div class="section-header">
+                <h1>Content Generation</h1>
+                <p>Create and manage your Christian content with AI-powered assistance.</p>
+            </div>
+
+            <!-- Content Type Selection -->
+            <div class="content-generator">
+                <div class="generator-header">
+                    <h2>Generate New Content</h2>
+                    <select id="contentType" class="content-type-select">
+                        <option value="devotional">Daily Devotional</option>
+                        <option value="book_review">Book Recommendation</option>
+                        <option value="prayer_guide">Prayer Guide</option>
+                        <option value="faith_qa">Faith Q&A</option>
+                        <option value="christian_living">Christian Living Article</option>
+                    </select>
+                </div>
+
+                <div class="generator-form">
+                    <div class="form-group">
+                        <label for="contentTopic">Topic/Theme</label>
+                        <input type="text" id="contentTopic" placeholder="e.g., Finding hope during difficult times">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bibleVerse">Bible Verse/Passage</label>
+                        <input type="text" id="bibleVerse" placeholder="e.g., Jeremiah 29:11">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetPlatform">Target Platform</label>
+                        <select id="targetPlatform">
+                            <option value="christian_books_today">Christian Books Today</option>
+                            <option value="praying_christian_women">Praying Christian Women</option>
+                            <option value="both">Both Platforms</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seoKeywords">SEO Keywords (comma-separated)</label>
+                        <input type="text" id="seoKeywords" placeholder="e.g., Christian hope, faith during trials, biblical encouragement">
+                    </div>
+
+                    <button class="generate-btn" onclick="generateAIContent()">
+                        <i class="fas fa-magic"></i>
+                        Generate Content
+                    </button>
+                </div>
+            </div>
+
+            <!-- Generated Content Preview -->
+            <div class="content-preview" id="contentPreview" style="display: none;">
+                <h3>Generated Content Preview</h3>
+                <div class="preview-content">
+                    <div class="preview-meta">
+                        <span class="content-type-badge">Devotional</span>
+                        <span class="word-count">487 words</span>
+                        <span class="seo-score">SEO Score: 85/100</span>
+                    </div>
+                    <div class="preview-text" id="previewText">
+                        <!-- Generated content will appear here -->
+                    </div>
+                </div>
+                <div class="preview-actions">
+                    <button class="btn secondary" onclick="editContent()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn secondary" onclick="scheduleContent()">
+                        <i class="fas fa-clock"></i> Schedule
+                    </button>
+                    <button class="btn primary" onclick="publishContent()">
+                        <i class="fas fa-paper-plane"></i> Publish Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Library -->
+            <div class="content-library">
+                <h2>Content Library</h2>
+                <div class="library-filters">
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="draft">Drafts</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="published">Published</option>
+                    </select>
+                    <select id="typeFilter">
+                        <option value="all">All Types</option>
+                        <option value="devotional">Devotionals</option>
+                        <option value="book_review">Book Reviews</option>
+                        <option value="prayer_guide">Prayer Guides</option>
+                    </select>
+                    <input type="search" id="searchContent" placeholder="Search content...">
+                </div>
+                
+                <div class="content-list">
+                    <div class="content-item">
+                        <div class="content-info">
+                            <h4>Finding Peace in Uncertain Times</h4>
+                            <p>A devotional reflection on Philippians 4:6-7 about anxiety and God's peace...</p>
+                            <div class="content-meta">
+                                <span class="type-badge devotional">Devotional</span>
+                                <span class="platform">Christian Books Today</span>
+                                <span class="date">Dec 27, 2024</span>
+                                <span class="status published">Published</span>
+                            </div>
+                        </div>
+                        <div class="content-actions">
+                            <button class="btn-icon" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" title="Analytics">
+                                <i class="fas fa-chart-line"></i>
+                            </button>
+                            <button class="btn-icon" title="Share">
+                                <i class="fas fa-share"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="content-item">
+                        <div class="content-info">
+                            <h4>5 Best Christian Books for New Mothers</h4>
+                            <p>A curated list of encouraging reads for Christian women navigating motherhood...</p>
+                            <div class="content-meta">
+                                <span class="type-badge book_review">Book Review</span>
+                                <span class="platform">Both Platforms</span>
+                                <span class="date">Dec 26, 2024</span>
+                                <span class="status scheduled">Scheduled</span>
+                            </div>
+                        </div>
+                        <div class="content-actions">
+                            <button class="btn-icon" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" title="Analytics">
+                                <i class="fas fa-chart-line"></i>
+                            </button>
+                            <button class="btn-icon" title="Share">
+                                <i class="fas fa-share"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monetization Section -->
+        <section id="monetization" class="content-section">
+            <div class="section-header">
+                <h1>Revenue Management</h1>
+                <p>Track and optimize your monetization streams across all platforms.</p>
+            </div>
+
+            <!-- Revenue Overview -->
+            <div class="revenue-overview">
+                <div class="revenue-chart-container">
+                    <h3>Monthly Revenue Trends</h3>
+                    <canvas id="revenueChart" width="400" height="200"></canvas>
+                </div>
+                
+                <div class="revenue-breakdown">
+                    <h3>Revenue Sources</h3>
+                    <div class="revenue-sources">
+                        <div class="revenue-source">
+                            <div class="source-info">
+                                <span class="source-name">Affiliate Marketing</span>
+                                <span class="source-amount">$1,245</span>
+                            </div>
+                            <div class="source-progress">
+                                <div class="progress-bar" style="width: 65%"></div>
+                            </div>
+                            <span class="source-percentage">65%</span>
+                        </div>
+                        
+                        <div class="revenue-source">
+                            <div class="source-info">
+                                <span class="source-name">Premium Memberships</span>
+                                <span class="source-amount">$892</span>
+                            </div>
+                            <div class="source-progress">
+                                <div class="progress-bar" style="width: 47%"></div>
+                            </div>
+                            <span class="source-percentage">47%</span>
+                        </div>
+                        
+                        <div class="revenue-source">
+                            <div class="source-info">
+                                <span class="source-name">Digital Products</span>
+                                <span class="source-amount">$456</span>
+                            </div>
+                            <div class="source-progress">
+                                <div class="progress-bar" style="width: 24%"></div>
+                            </div>
+                            <span class="source-percentage">24%</span>
+                        </div>
+                        
+                        <div class="revenue-source">
+                            <div class="source-info">
+                                <span class="source-name">Workshops & Events</span>
+                                <span class="source-amount">$254</span>
+                            </div>
+                            <div class="source-progress">
+                                <div class="progress-bar" style="width: 13%"></div>
+                            </div>
+                            <span class="source-percentage">13%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Affiliate Products Management -->
+            <div class="affiliate-management">
+                <div class="section-title">
+                    <h2>Affiliate Products</h2>
+                    <button class="btn primary" onclick="addAffiliateProduct()">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                </div>
+                
+                <div class="affiliate-products">
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=100&h=150&fit=crop" alt="Book Cover">
+                        <div class="product-info">
+                            <h4>Jesus Calling</h4>
+                            <p>by Sarah Young</p>
+                            <div class="product-stats">
+                                <span class="commission">8.5% commission</span>
+                                <span class="clicks">234 clicks</span>
+                                <span class="conversions">12 sales</span>
+                            </div>
+                        </div>
+                        <div class="product-revenue">$89.50</div>
+                    </div>
+                    
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=150&fit=crop" alt="Book Cover">
+                        <div class="product-info">
+                            <h4>Praying the Scriptures</h4>
+                            <p>by Jodie Berndt</p>
+                            <div class="product-stats">
+                                <span class="commission">7.2% commission</span>
+                                <span class="clicks">156 clicks</span>
+                                <span class="conversions">8 sales</span>
+                            </div>
+                        </div>
+                        <div class="product-revenue">$67.20</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Membership Management -->
+            <div class="membership-management">
+                <h2>Membership Tiers</h2>
+                <div class="membership-tiers">
+                    <div class="tier-card">
+                        <h3>Basic Subscriber</h3>
+                        <div class="tier-price">Free</div>
+                        <div class="tier-stats">
+                            <span class="subscriber-count">2,145 subscribers</span>
+                            <span class="growth">+45 this week</span>
+                        </div>
+                        <ul class="tier-benefits">
+                            <li>Weekly newsletter</li>
+                            <li>Basic blog access</li>
+                            <li>Free devotional downloads</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tier-card premium">
+                        <h3>Premium Member</h3>
+                        <div class="tier-price">$7/month</div>
+                        <div class="tier-stats">
+                            <span class="subscriber-count">456 subscribers</span>
+                            <span class="growth">+12 this week</span>
+                        </div>
+                        <ul class="tier-benefits">
+                            <li>All Basic benefits</li>
+                            <li>Exclusive weekly devotionals</li>
+                            <li>Early podcast access</li>
+                            <li>Monthly prayer calendar</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tier-card vip">
+                        <h3>VIP Community</h3>
+                        <div class="tier-price">$15/month</div>
+                        <div class="tier-stats">
+                            <span class="subscriber-count">89 subscribers</span>
+                            <span class="growth">+3 this week</span>
+                        </div>
+                        <ul class="tier-benefits">
+                            <li>All Premium benefits</li>
+                            <li>Monthly group prayer calls</li>
+                            <li>Exclusive Q&A sessions</li>
+                            <li>First access to new products</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar Section -->
+        <section id="calendar" class="content-section">
+            <div class="section-header">
+                <h1>Content Calendar</h1>
+                <p>Plan and schedule your content across all platforms.</p>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="previousMonth()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 id="currentMonth">December 2024</h2>
+                    <button class="calendar-nav" onclick="nextMonth()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="upcoming-content">
+                <h3>Upcoming Content</h3>
+                <div class="upcoming-list">
+                    <div class="upcoming-item">
+                        <div class="upcoming-date">Dec 28</div>
+                        <div class="upcoming-info">
+                            <h4>New Year Reflection Devotional</h4>
+                            <p>Christian Books Today • 9:00 AM</p>
+                            <span class="content-type devotional">Devotional</span>
+                        </div>
+                    </div>
+                    
+                    <div class="upcoming-item">
+                        <div class="upcoming-date">Dec 30</div>
+                        <div class="upcoming-info">
+                            <h4>Prayer Guide for New Beginnings</h4>
+                            <p>Praying Christian Women • 2:00 PM</p>
+                            <span class="content-type prayer_guide">Prayer Guide</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="content-section">
+            <div class="section-header">
+                <h1>Analytics & Insights</h1>
+                <p>Track your content performance and audience engagement.</p>
+            </div>
+
+            <div class="analytics-overview">
+                <div class="analytics-chart">
+                    <h3>Content Performance</h3>
+                    <canvas id="performanceChart" width="400" height="200"></canvas>
+                </div>
+                
+                <div class="top-content">
+                    <h3>Top Performing Content</h3>
+                    <div class="content-rankings">
+                        <div class="ranking-item">
+                            <span class="rank">1</span>
+                            <div class="ranking-info">
+                                <h4>Finding Peace in Uncertain Times</h4>
+                                <p>2,456 views • 89 shares</p>
+                            </div>
+                            <div class="ranking-metric">$127</div>
+                        </div>
+                        
+                        <div class="ranking-item">
+                            <span class="rank">2</span>
+                            <div class="ranking-info">
+                                <h4>5 Prayers for Anxious Mothers</h4>
+                                <p>1,892 views • 67 shares</p>
+                            </div>
+                            <div class="ranking-metric">$94</div>
+                        </div>
+                        
+                        <div class="ranking-item">
+                            <span class="rank">3</span>
+                            <div class="ranking-info">
+                                <h4>Christian Books for Holiday Gifts</h4>
+                                <p>1,634 views • 45 shares</p>
+                            </div>
+                            <div class="ranking-metric">$78</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="audience-insights">
+                <h3>Audience Insights</h3>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <h4>Demographics</h4>
+                        <div class="demographic-data">
+                            <div class="demo-item">
+                                <span class="demo-label">Women 25-44</span>
+                                <div class="demo-bar" style="width: 65%"></div>
+                                <span class="demo-percent">65%</span>
+                            </div>
+                            <div class="demo-item">
+                                <span class="demo-label">Women 45-64</span>
+                                <div class="demo-bar" style="width: 28%"></div>
+                                <span class="demo-percent">28%</span>
+                            </div>
+                            <div class="demo-item">
+                                <span class="demo-label">Other</span>
+                                <div class="demo-bar" style="width: 7%"></div>
+                                <span class="demo-percent">7%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <h4>Top Interests</h4>
+                        <div class="interest-tags">
+                            <span class="interest-tag">Prayer & Devotions</span>
+                            <span class="interest-tag">Christian Parenting</span>
+                            <span class="interest-tag">Bible Study</span>
+                            <span class="interest-tag">Christian Fiction</span>
+                            <span class="interest-tag">Faith & Family</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals and Overlays -->
+    <div id="contentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Content Editor</h3>
+                <button class="modal-close" onclick="closeModal('contentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="editor-container">
+                    <div class="editor-toolbar">
+                        <button class="toolbar-btn" title="Bold">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button class="toolbar-btn" title="Italic">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button class="toolbar-btn" title="Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button class="toolbar-btn" title="Quote">
+                            <i class="fas fa-quote-left"></i>
+                        </button>
+                    </div>
+                    <textarea id="contentEditor" class="content-editor" rows="20"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal('contentModal')">Cancel</button>
+                <button class="btn primary" onclick="saveContent()">Save Content</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
