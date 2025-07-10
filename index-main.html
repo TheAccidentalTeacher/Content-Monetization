@@ -6,7 +6,7 @@
     <title>Christian Content & Book Research Platform</title>
     
     <!-- Maximum Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://api.openai.com https://*.myshopify.com https://www.googleapis.com https://openlibrary.org; img-src 'self' data: https:; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://*.netlify.app https://*.netlify.com https://*.myshopify.com https://www.googleapis.com https://openlibrary.org; img-src 'self' data: https:; frame-ancestors 'none';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
@@ -16,8 +16,6 @@
     <!-- Security and Privacy -->
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex, nofollow">
-    <link rel="dns-prefetch" href="https://api.openai.com">
-    <link rel="preconnect" href="https://api.openai.com" crossorigin>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -1477,83 +1475,67 @@ While difficult times are inevitable, they need not define us. Through faith in 
 
         // Content Generation Functions
         async function generateBlogIdeas() {
-            if (!config.openaiKey && !config.testMode) {
-                showAlert('OpenAI API key required for content generation. Please configure your API keys first.', 'error');
-                return;
-            }
-            
-            // Use mock data in test mode
             if (config.testMode) {
-                showLoading('Generating Christian Blog Post Ideas...');
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
+                // Use mock data in test mode
                 const ideas = TestingModule.generateMockContent('ideas');
-                let html = '<div class="content-results"><h3>📝 Christian Blog Post Ideas</h3>';
-                
-                ideas.forEach((idea, index) => {
-                    html += `
-                        <div class="result-item">
-                            <h4>${index + 1}. ${idea.title}</h4>
-                            <p><strong>Description:</strong> ${idea.description}</p>
-                            <p><strong>Target Audience:</strong> ${idea.targetAudience}</p>
-                            <p><strong>Keywords:</strong> ${idea.keywords.join(', ')}</p>
-                            <p><strong>Estimated Reading Time:</strong> ${idea.estimatedReadTime}</p>
-                        </div>
-                    `;
-                });
-                
-                html += '<div class="test-notice">🧪 <strong>Test Mode:</strong> This is sample data. Add your OpenAI API key to generate real content.</div></div>';
-                
-                document.getElementById('resultsTitle').textContent = 'Content Ideas Generated';
-                document.getElementById('resultsContent').innerHTML = html;
-                document.getElementById('results').classList.remove('hidden');
+                showBlogIdeas(ideas);
                 return;
             }
-
-            showLoading('Generating Christian Blog Post Ideas...');
-            
-            const topic = document.getElementById('blogTopic').value.trim();
-            
+            showLoading('Generating Blog Ideas...');
             try {
-                // Simulate API call (replace with actual OpenAI integration)
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                const ideas = [
-                    {
-                        title: "Finding Hope in Difficult Times: A Christian Perspective",
-                        description: "Explore how faith can provide comfort and guidance during life's challenges",
-                        keywords: ["hope", "faith", "challenges", "christian living"],
-                        score: 9
-                    },
-                    {
-                        title: "The Power of Prayer in Daily Life",
-                        description: "Practical ways to incorporate meaningful prayer into your everyday routine",
-                        keywords: ["prayer", "daily devotion", "spiritual growth"],
-                        score: 8
-                    },
-                    {
-                        title: "Building Strong Christian Relationships",
-                        description: "Biblical principles for nurturing healthy relationships in family and community",
-                        keywords: ["relationships", "community", "biblical principles"],
-                        score: 8
-                    }
+                const topic = document.getElementById('blogTopic').value.trim();
+                const messages = [
+                    { role: 'system', content: 'You are an expert Christian content strategist.' },
+                    { role: 'user', content: `Generate 10 unique, trending Christian blog post ideas${topic ? ' about ' + topic : ''}.` }
                 ];
-                
-                displayBlogIdeas(ideas);
-                
+                const response = await fetch('/.netlify/functions/openai-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: messages,
+                        max_tokens: 600,
+                        temperature: 0.8
+                    })
+                });
+                const data = await response.json();
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    // Parse ideas from OpenAI response
+                    const ideas = parseBlogIdeas(data.choices[0].message.content);
+                    showBlogIdeas(ideas);
+                } else {
+                    showAlert('Failed to generate blog ideas. Please try again.', 'error');
+                }
             } catch (error) {
-                showAlert('Error generating blog ideas: ' + error.message, 'error');
+                showAlert('Error contacting OpenAI. Please try again later.', 'error');
             }
         }
 
+        // Helper to parse OpenAI response into ideas array
+        function parseBlogIdeas(content) {
+            // Try to split numbered list or bullet points
+            const lines = content.split(/\n|\r/).filter(line => line.trim().length > 0);
+            const ideas = lines.map(line => {
+                // Remove leading numbers or dashes
+                return line.replace(/^\d+\.|^-\s*/, '').trim();
+            }).filter(line => line.length > 0);
+            return ideas.map(title => ({ title }));
+        }
+
+        // Helper to display blog ideas
+        function showBlogIdeas(ideas) {
+            const results = document.getElementById('results');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsContent = document.getElementById('resultsContent');
+            resultsTitle.textContent = 'AI Blog Ideas';
+            resultsContent.innerHTML = ideas.map(idea => `<div class="item"><div class="item-title">${idea.title}</div></div>`).join('');
+            results.classList.remove('hidden');
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
         async function generateFullPost() {
-            if (!config.openaiKey && !config.testMode) {
-                showAlert('OpenAI API key required for content generation. Please configure your API keys first.', 'error');
-                return;
-            }
-            
-            // Use mock data in test mode
             if (config.testMode) {
+                // Use mock data in test mode
                 showLoading('Creating Complete Blog Post...');
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 
@@ -1585,21 +1567,163 @@ While difficult times are inevitable, they need not define us. Through faith in 
             showLoading('Creating Complete Blog Post...');
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                showAlert('Complete blog post generation is coming soon! This feature will create full blog posts with images, SEO optimization, and social media content.', 'info');
+                const topic = document.getElementById('blogTopic').value.trim();
+                const messages = [
+                    { role: 'system', content: 'You are an expert Christian content creator and blogger.' },
+                    { role: 'user', content: `Create a complete, engaging Christian blog post${topic ? ' about ' + topic : ''}. Include a compelling title, introduction, main body with subheadings, conclusion, and suggested SEO keywords. Make it approximately 800-1200 words.` }
+                ];
+
+                const response = await fetch('/.netlify/functions/openai-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: messages,
+                        max_tokens: 1500,
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    const content = data.choices[0].message.content;
+                    const wordCount = content.split(/\s+/).length;
+                    const readingTime = Math.ceil(wordCount / 200);
+                    
+                    const html = `
+                        <div class="content-results">
+                            <h3>📄 Complete Blog Post</h3>
+                            <div class="result-item">
+                                <div class="post-meta">
+                                    <span><strong>Word Count:</strong> ${wordCount} words</span> | 
+                                    <span><strong>Reading Time:</strong> ${readingTime} minutes</span>
+                                </div>
+                                <div class="post-content" style="max-height: 500px; overflow-y: auto; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px; line-height: 1.6;">
+                                    ${content.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('resultsTitle').textContent = 'Blog Post Created';
+                    document.getElementById('resultsContent').innerHTML = html;
+                    document.getElementById('results').classList.remove('hidden');
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showAlert('Failed to generate blog post. Please try again.', 'error');
+                }
             } catch (error) {
-                showAlert('Error generating blog post: ' + error.message, 'error');
+                showAlert('Error generating blog post. Please try again later.', 'error');
             }
         }
 
         async function analyzeContentTrends() {
+            if (config.testMode) {
+                showLoading('Analyzing Christian Content Trends...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const trends = {
+                    trending: [
+                        { topic: 'Prayer and Meditation', growth: '+45%', engagement: 'High' },
+                        { topic: 'Family Values', growth: '+38%', engagement: 'Very High' },
+                        { topic: 'Biblical Study', growth: '+32%', engagement: 'High' },
+                        { topic: 'Christian Living', growth: '+28%', engagement: 'Medium' },
+                        { topic: 'Faith and Work', growth: '+25%', engagement: 'High' }
+                    ],
+                    seasonal: [
+                        { season: 'Christmas Season', opportunity: 'Advent devotionals', timing: 'November-December' },
+                        { season: 'Easter Season', opportunity: 'Resurrection stories', timing: 'February-April' },
+                        { season: 'Back to School', opportunity: 'Faith-based education', timing: 'August-September' }
+                    ],
+                    recommendations: [
+                        'Focus on prayer-related content - highest engagement',
+                        'Create family-oriented devotionals',
+                        'Develop workplace faith integration content',
+                        'Plan seasonal content 2-3 months ahead'
+                    ]
+                };
+                
+                let html = `
+                    <div class="content-results">
+                        <h3>📊 Christian Content Trends Analysis</h3>
+                        <div class="result-item">
+                            <h4>🔥 Trending Topics</h4>
+                            ${trends.trending.map(item => `
+                                <div style="background: #e8f5e8; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                                    <strong>${item.topic}</strong> - Growth: ${item.growth} | Engagement: ${item.engagement}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="result-item">
+                            <h4>🗓️ Seasonal Opportunities</h4>
+                            ${trends.seasonal.map(item => `
+                                <div style="background: #e8f4fd; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                                    <strong>${item.season}</strong> - ${item.opportunity} (${item.timing})
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="result-item">
+                            <h4>💡 Content Recommendations</h4>
+                            ${trends.recommendations.map(rec => `
+                                <div style="background: #fff3cd; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                                    • ${rec}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="test-notice">🧪 <strong>Test Mode:</strong> This is sample trend analysis. Configure your OpenAI API key for real-time trend analysis.</div>
+                    </div>
+                `;
+                
+                document.getElementById('resultsTitle').textContent = 'Content Trends Analysis';
+                document.getElementById('resultsContent').innerHTML = html;
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
             showLoading('Analyzing Christian Content Trends...');
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                showAlert('Content trend analysis is coming soon! This feature will analyze Christian RSS feeds, social media trends, and seasonal content opportunities.', 'info');
+                const messages = [
+                    { role: 'system', content: 'You are a Christian content marketing expert and trend analyst.' },
+                    { role: 'user', content: 'Analyze current Christian content trends, seasonal opportunities, and provide actionable recommendations for content creators. Include trending topics, engagement patterns, and optimal timing for different types of Christian content.' }
+                ];
+
+                const response = await fetch('/.netlify/functions/openai-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: messages,
+                        max_tokens: 800,
+                        temperature: 0.6
+                    })
+                });
+
+                const data = await response.json();
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    const analysis = data.choices[0].message.content;
+                    
+                    const html = `
+                        <div class="content-results">
+                            <h3>📊 Christian Content Trends Analysis</h3>
+                            <div class="result-item">
+                                <div class="post-content" style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.6;">
+                                    ${analysis.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('resultsTitle').textContent = 'Content Trends Analysis';
+                    document.getElementById('resultsContent').innerHTML = html;
+                    document.getElementById('results').classList.remove('hidden');
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showAlert('Failed to analyze trends. Please try again.', 'error');
+                }
             } catch (error) {
-                showAlert('Error analyzing trends: ' + error.message, 'error');
+                showAlert('Error analyzing trends. Please try again later.', 'error');
             }
         }
 
@@ -2078,6 +2202,83 @@ While difficult times are inevitable, they need not define us. Through faith in 
             `;
             
             resultsContent.innerHTML = html;
+        }
+
+        // Demo Functions for Testing Tab
+        function showMockContent() {
+            const ideas = TestingModule.generateMockContent('ideas');
+            showBlogIdeas(ideas);
+        }
+
+        function showMockBooks() {
+            const books = TestingModule.getMockBooks();
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsTitle.textContent = 'Sample Christian Books Data';
+            
+            let html = `
+                <div class="content-results">
+                    <h3>📚 Sample Book Research Results</h3>
+            `;
+            
+            books.forEach(book => {
+                html += `
+                    <div class="result-item">
+                        <h4>${book.title}</h4>
+                        <div class="post-meta">
+                            <span><strong>Author:</strong> ${book.author}</span> | 
+                            <span><strong>Rating:</strong> ${book.rating}/5.0 (${book.reviews} reviews)</span> | 
+                            <span><strong>Price:</strong> ${book.price}</span>
+                            ${book.bestseller ? ' | <span style="color: #dc3545; font-weight: bold;">📈 BESTSELLER</span>' : ''}
+                        </div>
+                        <div class="item-details">
+                            <strong>Genre:</strong> ${book.genre}<br>
+                            <strong>Published:</strong> ${book.publishDate}<br>
+                            <strong>Description:</strong> ${book.description}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    <div class="test-notice">🧪 <strong>Demo Mode:</strong> This shows how book research results will appear with real API data.</div>
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showMockBlogPost() {
+            const post = TestingModule.generateMockContent('fullPost');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsTitle.textContent = 'Sample Complete Blog Post';
+            
+            const html = `
+                <div class="content-results">
+                    <h3>📄 Sample Complete Blog Post</h3>
+                    <div class="result-item">
+                        <h4>${post.title}</h4>
+                        <div class="post-meta">
+                            <span><strong>Word Count:</strong> ${post.wordCount} words</span> | 
+                            <span><strong>Reading Time:</strong> ${post.readingTime}</span> | 
+                            <span><strong>SEO Keywords:</strong> ${post.seoKeywords.join(', ')}</span>
+                        </div>
+                        <div class="post-content" style="max-height: 500px; overflow-y: auto; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px; line-height: 1.6;">
+                            ${post.content.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                    <div class="test-notice">🧪 <strong>Demo Mode:</strong> This demonstrates the quality and format of AI-generated blog posts.</div>
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
