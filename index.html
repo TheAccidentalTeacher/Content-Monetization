@@ -1368,10 +1368,9 @@ While difficult times are inevitable, they need not define us. Through faith in 
             // Clear all form fields
             SecurityManager.clearSensitiveData();
             
-            // Return to configuration page
-            document.getElementById('mainPlatform').style.display = 'none';
-            document.getElementById('configSection').style.display = 'block';
-            
+            // Always show main platform, never config page
+            document.getElementById('mainPlatform').style.display = 'block';
+            document.getElementById('configSection').style.display = 'none';
             showAlert('🔐 Secure logout completed. All sensitive data cleared.', 'success');
         }
 
@@ -1414,28 +1413,22 @@ While difficult times are inevitable, they need not define us. Through faith in 
 
         // Tab Management
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize security first
-            initializeSecurity();
-            
-            // Load configuration
-            loadConfiguration();
-            
+            // Always hide config and show main platform in production
+            document.getElementById('configSection').style.display = 'none';
+            document.getElementById('mainPlatform').style.display = 'block';
+            // Optionally, you can set a flag if you want to distinguish prod/test
+            // initializeSecurity();
+            // loadConfiguration();
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.addEventListener('click', () => {
                     const tabId = button.getAttribute('data-tab');
-                    
-                    // Skip tab switching for logout button
                     if (button.classList.contains('security-logout')) {
                         return;
                     }
-                    
                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
-                    
                     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     document.getElementById(tabId).classList.add('active');
-                    
-                    // Reset session timeout on tab activity
                     resetSessionTimeout();
                 });
             });
@@ -1830,6 +1823,13 @@ While difficult times are inevitable, they need not define us. Through faith in 
         function showMockBlogPost() {
             const post = TestingModule.generateMockContent('fullPost');
             let html = `
+                <div class="test-section">
+                    <h3>📄 Sample Blog Post</h3>
+                    <div class="test-item">
+                        <strong>Title:</strong> ${post.title}<br>
+                        <strong>Word Count:</strong> ${post.wordCount} words<br>
+                        <strong>Reading Time:</strong> ${post.readingTime}<br>
+                        <strong>SEO Keywords:</strong> ${post.seoKeywords.join(', ')}<br><br>
                 <div class="test-section">
                     <h3>📄 Sample Blog Post</h3>
                     <div class="test-item">
