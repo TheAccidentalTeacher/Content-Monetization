@@ -6,7 +6,7 @@
     <title>Christian Content & Book Research Platform</title>
     
     <!-- Maximum Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://api.openai.com https://*.myshopify.com https://www.goodreads.com; img-src 'self' data: https:; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://api.openai.com https://*.myshopify.com https://www.googleapis.com https://openlibrary.org; img-src 'self' data: https:; frame-ancestors 'none';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
@@ -590,9 +590,9 @@
             </div>
 
             <div class="api-key-input">
-                <label for="goodreadsKey">Goodreads API Key (Optional - For Enhanced Book Data)</label>
-                <input type="password" id="goodreadsKey" placeholder="Your Goodreads API Key">
-                <small>Get from: <a href="https://www.goodreads.com/api" target="_blank">goodreads.com/api</a></small>
+                <label for="googleBooksKey">Google Books API Key (Optional - For Enhanced Book Data)</label>
+                <input type="password" id="googleBooksKey" placeholder="AIza...">
+                <small>Get from: <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a> - Enable Books API</small>
             </div>
 
             <div class="alert alert-warning">
@@ -1237,7 +1237,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
                     if (savedConfig.encryptedData && savedConfig.encryptionKey) {
                         const decryptedOpenAI = SecurityManager.decrypt(savedConfig.encryptedData.openaiKey, savedConfig.encryptionKey);
                         const decryptedShopify = SecurityManager.decrypt(savedConfig.encryptedData.shopifyToken, savedConfig.encryptionKey);
-                        const decryptedGoodreads = SecurityManager.decrypt(savedConfig.encryptedData.goodreadsKey, savedConfig.encryptionKey);
+                        const decryptedGoogleBooks = SecurityManager.decrypt(savedConfig.encryptedData.googleBooksKey, savedConfig.encryptionKey);
                         
                         // Only load if decryption successful and keys are valid
                         if (SecurityManager.validateApiKey(decryptedOpenAI, 'openai')) {
@@ -1248,9 +1248,9 @@ While difficult times are inevitable, they need not define us. Through faith in 
                             config.shopifyToken = decryptedShopify;
                             document.getElementById('shopifyToken').value = SecurityManager.maskApiKey(decryptedShopify);
                         }
-                        if (SecurityManager.validateApiKey(decryptedGoodreads, 'goodreads')) {
-                            config.goodreadsKey = decryptedGoodreads;
-                            document.getElementById('goodreadsKey').value = SecurityManager.maskApiKey(decryptedGoodreads);
+                        if (decryptedGoogleBooks && decryptedGoogleBooks.startsWith('AIza')) {
+                            config.googleBooksKey = decryptedGoogleBooks;
+                            document.getElementById('googleBooksKey').value = SecurityManager.maskApiKey(decryptedGoogleBooks);
                         }
                         
                         // Load non-sensitive data
@@ -1276,7 +1276,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
             const openaiKey = document.getElementById('openaiKey').value.trim();
             const shopifyToken = document.getElementById('shopifyToken').value.trim();
             const shopifyShop = document.getElementById('shopifyShop').value.trim();
-            const goodreadsKey = document.getElementById('goodreadsKey').value.trim();
+            const googleBooksKey = document.getElementById('googleBooksKey').value.trim();
 
             // Validate required API key
             if (!openaiKey) {
@@ -1299,7 +1299,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
             config.openaiKey = openaiKey;
             config.shopifyToken = shopifyToken;
             config.shopifyShop = shopifyShop;
-            config.goodreadsKey = goodreadsKey;
+            config.googleBooksKey = googleBooksKey;
             config.testMode = false; // Switch to live mode
 
             // Encrypt sensitive data for storage
@@ -1307,7 +1307,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 encryptedData: {
                     openaiKey: SecurityManager.encrypt(openaiKey, config.encryptionKey),
                     shopifyToken: SecurityManager.encrypt(shopifyToken, config.encryptionKey),
-                    goodreadsKey: SecurityManager.encrypt(goodreadsKey, config.encryptionKey)
+                    googleBooksKey: SecurityManager.encrypt(googleBooksKey, config.encryptionKey)
                 },
                 shopifyShop: shopifyShop, // Non-sensitive data
                 encryptionKey: config.encryptionKey,
@@ -1654,32 +1654,28 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 return;
             }
             
-            showLoading(`Searching Bookshop.org for ${authorName}...`);
+            showLoading(`Searching for ${authorName}'s books...`);
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Search both Google Books and Open Library
+                const [googleBooks, openLibraryBooks] = await Promise.all([
+                    searchGoogleBooks(`inauthor:${authorName}`, 5),
+                    searchOpenLibrary(`author:${authorName}`, 5)
+                ]);
                 
-                const books = [
-                    {
-                        title: "A Time to Dance",
-                        author: authorName,
-                        price: 14.99,
-                        isbn: "9781234567890",
-                        description: "A powerful story of love, loss, and redemption that will touch your heart."
-                    },
-                    {
-                        title: "When Joy Came to Stay",
-                        author: authorName,
-                        price: 13.99,
-                        isbn: "9780987654321",
-                        description: "An uplifting tale of hope and healing in the face of adversity."
-                    }
-                ];
+                // Combine results
+                const allBooks = [...googleBooks, ...openLibraryBooks];
                 
-                displayBookshopBooks(books, authorName);
+                if (allBooks.length === 0) {
+                    showAlert(`No books found for "${authorName}". Try a different spelling or check the author name.`, 'warning');
+                    return;
+                }
+                
+                displayBookshopBooks(allBooks, authorName);
                 
             } catch (error) {
-                showAlert('Error searching Bookshop.org: ' + error.message, 'error');
+                console.error('Book search error:', error);
+                showAlert('Error searching for books: ' + error.message, 'error');
             }
         }
 
@@ -1786,6 +1782,72 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 
             } catch (error) {
                 showAlert('Error loading analytics: ' + error.message, 'error');
+            }
+        }
+
+        // Google Books API Integration
+        async function searchGoogleBooks(query, maxResults = 10) {
+            if (config.testMode || !config.googleBooksKey) {
+                // Return mock data if in test mode or no API key
+                return TestingModule.getMockBooks().slice(0, maxResults);
+            }
+            
+            try {
+                const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${config.googleBooksKey}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Google Books API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                return data.items?.map(item => ({
+                    title: item.volumeInfo.title || 'Unknown Title',
+                    author: item.volumeInfo.authors?.[0] || 'Unknown Author',
+                    description: item.volumeInfo.description || 'No description available',
+                    rating: item.volumeInfo.averageRating || 'N/A',
+                    reviews: item.volumeInfo.ratingsCount || 0,
+                    price: item.saleInfo?.listPrice?.amount ? `$${item.saleInfo.listPrice.amount}` : 'Price not available',
+                    genre: item.volumeInfo.categories?.[0] || 'General',
+                    publishDate: item.volumeInfo.publishedDate || 'Unknown',
+                    isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier || 'No ISBN',
+                    image: item.volumeInfo.imageLinks?.thumbnail || '',
+                    googleBooksId: item.id
+                })) || [];
+                
+            } catch (error) {
+                console.error('Google Books API error:', error);
+                showAlert('Error searching Google Books: ' + error.message, 'error');
+                return [];
+            }
+        }
+        
+        // Open Library API Integration (No API key required)
+        async function searchOpenLibrary(query, limit = 10) {
+            try {
+                const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Open Library API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                return data.docs?.map(doc => ({
+                    title: doc.title || 'Unknown Title',
+                    author: doc.author_name?.[0] || 'Unknown Author',
+                    description: doc.first_sentence?.[0] || 'No description available',
+                    publishDate: doc.first_publish_year || 'Unknown',
+                    isbn: doc.isbn?.[0] || 'No ISBN',
+                    subjects: doc.subject?.slice(0, 3) || [],
+                    editions: doc.edition_count || 1,
+                    openLibraryId: doc.key
+                })) || [];
+                
+            } catch (error) {
+                console.error('Open Library API error:', error);
+                showAlert('Error searching Open Library: ' + error.message, 'error');
+                return [];
             }
         }
 
