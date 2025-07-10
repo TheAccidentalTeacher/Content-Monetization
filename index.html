@@ -357,6 +357,31 @@
             .button-group .btn {
                 min-width: 100%;
             }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .results {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            
+            .tab-nav {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .tab-button {
+                flex: 1;
+                min-width: 120px;
+                font-size: 0.9rem;
+            }
         }
 
         /* Test Mode Styles */
@@ -605,14 +630,12 @@
                 <button class="btn btn-primary" onclick="saveConfiguration()">
                     <i class="fas fa-save"></i> Save Configuration & Start Platform
                 </button>
-                <button class="btn" onclick="skipToTesting()" style="background: #6c757d;">
-                    <i class="fas fa-flask"></i> Skip to Testing Mode
-                </button>
             </div>
             
             <div style="text-align: center; margin-top: 15px; padding: 15px; background: #e8f4fd; border-radius: 8px;">
-                <strong>💡 New Feature:</strong> You can now test all platform features without API keys! 
-                Click "Skip to Testing Mode" to explore with realistic mock data.
+                <strong>� Production Ready:</strong> This platform connects directly to real APIs for professional content creation and book research.
+                <br><br>
+                <strong>📱 Mobile Optimized:</strong> All features work seamlessly on mobile devices.
             </div>
 
             <!-- Security Status Panel -->
@@ -662,9 +685,6 @@
                 </button>
                 <button class="tab-button" data-tab="analytics">
                     <i class="fas fa-chart-line"></i> Analytics
-                </button>
-                <button class="tab-button" data-tab="testing">
-                    <i class="fas fa-flask"></i> Testing
                 </button>
                 <button class="tab-button" onclick="showPlatformInfo()" style="background: #28a745; margin-left: auto;">
                     <i class="fas fa-info-circle"></i> Platform Info
@@ -812,66 +832,6 @@
                 </div>
             </div>
 
-            <!-- Testing Tab -->
-            <div id="testing" class="tab-content">
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <div class="feature-header">
-                            <div class="feature-icon content-icon">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <div>
-                                <div class="feature-title">Platform Testing</div>
-                            </div>
-                        </div>
-                        <div class="feature-description">
-                            Test all platform features with mock data before connecting your APIs. Perfect for verifying everything works correctly.
-                        </div>
-                        <div class="button-group">
-                            <button class="btn" onclick="TestingModule.runTest('content')">
-                                <i class="fas fa-pen-fancy"></i> Test Content Generation
-                            </button>
-                            <button class="btn" onclick="TestingModule.runTest('books')">
-                                <i class="fas fa-book-open"></i> Test Book Research
-                            </button>
-                            <button class="btn" onclick="TestingModule.runTest('analytics')">
-                                <i class="fas fa-chart-line"></i> Test Analytics
-                            </button>
-                            <button class="btn btn-primary" onclick="TestingModule.runTest('all')">
-                                <i class="fas fa-check-double"></i> Run All Tests
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-header">
-                            <div class="feature-icon content-icon">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <div>
-                                <div class="feature-title">Demo with Mock Data</div>
-                            </div>
-                        </div>
-                        <div class="feature-description">
-                            See how your platform will work with real data by using our comprehensive mock datasets.
-                        </div>
-                        <div class="button-group">
-                            <button class="btn" onclick="showMockContent()">
-                                <i class="fas fa-lightbulb"></i> View Sample Content Ideas
-                            </button>
-                            <button class="btn" onclick="showMockBooks()">
-                                <i class="fas fa-books"></i> View Sample Book Data
-                            </button>
-                            <button class="btn" onclick="showMockBlogPost()">
-                                <i class="fas fa-file-alt"></i> View Sample Blog Post
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Test Results Display -->
-                <div id="test-results" class="test-results" style="margin-top: 20px;"></div>
-            </div>
         </div>
 
         <!-- Results Section -->
@@ -968,260 +928,8 @@
             shopifyToken: '',
             shopifyShop: '',
             goodreadsKey: '',
-            testMode: true, // Start in test mode by default
             encryptionKey: SecurityManager.generateEncryptionKey(),
             sessionToken: SecurityManager.generateSessionToken()
-        };
-
-        // Testing Module
-        const TestingModule = {
-            mockData: {
-                contentIdeas: [
-                    {
-                        title: "Finding Hope in Difficult Times",
-                        description: "A guide to maintaining faith during life's challenges",
-                        keywords: ["hope", "faith", "challenges", "christian living"],
-                        targetAudience: "Christians facing difficulties",
-                        estimatedReadTime: "5 minutes"
-                    },
-                    {
-                        title: "The Power of Prayer in Daily Life",
-                        description: "Practical ways to incorporate prayer into your routine",
-                        keywords: ["prayer", "daily devotion", "spiritual growth"],
-                        targetAudience: "New believers and growing Christians",
-                        estimatedReadTime: "7 minutes"
-                    },
-                    {
-                        title: "Biblical Wisdom for Modern Relationships",
-                        description: "Applying scripture to contemporary relationship challenges",
-                        keywords: ["relationships", "biblical wisdom", "marriage", "friendship"],
-                        targetAudience: "Christian couples and singles",
-                        estimatedReadTime: "8 minutes"
-                    }
-                ],
-                
-                fullBlogPost: {
-                    title: "Finding Hope in Difficult Times",
-                    content: `# Finding Hope in Difficult Times
-
-## Introduction
-Life often presents us with challenges that test our faith and resilience. As Christians, we are not immune to hardship, but we have access to a source of hope that transcends our circumstances.
-
-## The Foundation of Christian Hope
-Our hope is not based on wishful thinking or positive psychology, but on the unchanging character of God and His promises revealed in Scripture.
-
-### Key Biblical Promises:
-- "For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, to give you hope and a future." (Jeremiah 29:11)
-- "And we know that in all things God works for the good of those who love him, who have been called according to his purpose." (Romans 8:28)
-
-## Practical Steps to Maintain Hope
-
-### 1. Daily Scripture Reading
-Regular engagement with God's Word reminds us of His faithfulness throughout history.
-
-### 2. Prayer and Meditation
-Spending time in prayer helps us align our perspective with God's eternal viewpoint.
-
-### 3. Christian Community
-Fellowship with other believers provides encouragement and accountability.
-
-### 4. Service to Others
-Helping others often puts our own struggles in perspective and demonstrates God's love.
-
-## Conclusion
-While difficult times are inevitable, they need not define us. Through faith in Christ, we can find hope that sustains us through any storm.
-
-*Remember: This too shall pass, but God's love endures forever.*`,
-                    seoKeywords: ["christian hope", "faith in difficult times", "biblical encouragement"],
-                    wordCount: 285,
-                    readingTime: "2 minutes"
-                },
-
-                christianBooks: [
-                    {
-                        title: "The Pilgrim's Progress",
-                        author: "John Bunyan",
-                        rating: 4.8,
-                        reviews: 1247,
-                        price: "$12.99",
-                        description: "A timeless allegory of the Christian journey",
-                        genre: "Christian Fiction",
-                        publishDate: "2024-06-15",
-                        bestseller: true
-                    },
-                    {
-                        title: "Mere Christianity",
-                        author: "C.S. Lewis",
-                        rating: 4.9,
-                        reviews: 2156,
-                        price: "$14.99",
-                        description: "A rational approach to the Christian faith",
-                        genre: "Christian Apologetics",
-                        publishDate: "2024-06-20",
-                        bestseller: true
-                    },
-                    {
-                        title: "The Purpose Driven Life",
-                        author: "Rick Warren",
-                        rating: 4.7,
-                        reviews: 3421,
-                        price: "$16.99",
-                        description: "Discovering your place on earth",
-                        genre: "Christian Living",
-                        publishDate: "2024-06-25",
-                        bestseller: false
-                    }
-                ],
-
-                authorAnalysis: {
-                    authorName: "C.S. Lewis",
-                    totalBooks: 15,
-                    averageRating: 4.8,
-                    topBooks: [
-                        { title: "Mere Christianity", rating: 4.9, sales: "2M+" },
-                        { title: "The Chronicles of Narnia", rating: 4.8, sales: "1.5M+" },
-                        { title: "The Screwtape Letters", rating: 4.7, sales: "800K+" }
-                    ],
-                    readerSentiment: "Overwhelmingly positive - readers praise Lewis's ability to make complex theological concepts accessible",
-                    recommendedAudience: "Both new believers and mature Christians"
-                },
-
-                analytics: {
-                    totalContentGenerated: 47,
-                    totalBooksResearched: 156,
-                    averageEngagement: "85%",
-                    topPerformingContent: "Prayer and Daily Life series",
-                    monthlyGrowth: "+23%"
-                }
-            },
-
-            runTest: function(testType) {
-                const results = document.getElementById('test-results');
-                if (!results) return;
-                
-                results.innerHTML = '<div class="loading">🧪 Running tests...</div>';
-                
-                setTimeout(() => {
-                    let testResults = '';
-                    
-                    switch(testType) {
-                        case 'content':
-                            testResults = this.testContentGeneration();
-                            break;
-                        case 'books':
-                            testResults = this.testBookResearch();
-                            break;
-                        case 'analytics':
-                            testResults = this.testAnalytics();
-                            break;
-                        case 'all':
-                            testResults = this.testAll();
-                            break;
-                    }
-                    
-                    results.innerHTML = testResults;
-                }, 1500);
-            },
-
-            testContentGeneration: function() {
-                return `
-                    <div class="test-section">
-                        <h3>✅ Content Generation Tests</h3>
-                        <div class="test-item">
-                            <strong>✓ Content Ideas Generation:</strong> Successfully generated ${this.mockData.contentIdeas.length} content ideas
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Full Blog Post Creation:</strong> Generated complete blog post with ${this.mockData.fullBlogPost.wordCount} words
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ SEO Optimization:</strong> Added ${this.mockData.fullBlogPost.seoKeywords.length} SEO keywords
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Reading Time Calculation:</strong> Estimated reading time: ${this.mockData.fullBlogPost.readingTime}
-                        </div>
-                    </div>
-                `;
-            },
-
-            testBookResearch: function() {
-                return `
-                    <div class="test-section">
-                        <h3>✅ Book Research Tests</h3>
-                        <div class="test-item">
-                            <strong>✓ Christian Book Discovery:</strong> Found ${this.mockData.christianBooks.length} recent Christian books
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Rating Analysis:</strong> Average rating: ${(this.mockData.christianBooks.reduce((sum, book) => sum + book.rating, 0) / this.mockData.christianBooks.length).toFixed(1)}/5.0
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Price Extraction:</strong> Successfully extracted pricing for all books
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Author Analysis:</strong> Generated comprehensive analysis for ${this.mockData.authorAnalysis.authorName}
-                        </div>
-                    </div>
-                `;
-            },
-
-            testAnalytics: function() {
-                return `
-                    <div class="test-section">
-                        <h3>✅ Analytics Tests</h3>
-                        <div class="test-item">
-                            <strong>✓ Usage Tracking:</strong> ${this.mockData.analytics.totalContentGenerated} content pieces generated
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Performance Metrics:</strong> ${this.mockData.analytics.averageEngagement} average engagement
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Growth Analysis:</strong> ${this.mockData.analytics.monthlyGrowth} monthly growth
-                        </div>
-                        <div class="test-item">
-                            <strong>✓ Top Content Identification:</strong> "${this.mockData.analytics.topPerformingContent}" performing best
-                        </div>
-                    </div>
-                `;
-            },
-
-            testAll: function() {
-                return `
-                    <div class="test-section">
-                        <h3>🎉 Complete Platform Test Results</h3>
-                        ${this.testContentGeneration()}
-                        ${this.testBookResearch()}
-                        ${this.testAnalytics()}
-                        <div class="test-summary">
-                            <h4>📊 Test Summary</h4>
-                            <div class="test-item success">
-                                <strong>✅ All Systems Operational:</strong> Platform ready for API integration
-                            </div>
-                            <div class="test-item success">
-                                <strong>✅ Mock Data Verified:</strong> All test scenarios passed
-                            </div>
-                            <div class="test-item success">
-                                <strong>✅ UI Components Working:</strong> All interface elements functional
-                            </div>
-                        </div>
-                    </div>
-                `;
-            },
-
-            // Demo functions that use mock data
-            generateMockContent: function(type) {
-                if (type === 'ideas') {
-                    return this.mockData.contentIdeas;
-                } else if (type === 'fullPost') {
-                    return this.mockData.fullBlogPost;
-                }
-            },
-
-            getMockBooks: function() {
-                return this.mockData.christianBooks;
-            },
-
-            getMockAnalytics: function() {
-                return this.mockData.analytics;
-            }
         };
 
         // Load saved configuration with security
@@ -1231,7 +939,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 checkBackendApiKey().then(hasBackendKey => {
                     if (hasBackendKey) {
                         // Backend has the API key, proceed directly to main platform
-                        config.testMode = false; // Set to live mode since backend API key is available
                         config.openaiKey = 'backend-managed'; // Indicate API key is managed by backend
                         document.getElementById('configSection').style.display = 'none';
                         document.getElementById('mainPlatform').style.display = 'block';
@@ -1347,7 +1054,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
             config.shopifyToken = shopifyToken;
             config.shopifyShop = shopifyShop;
             config.googleBooksKey = googleBooksKey;
-            config.testMode = false; // Switch to live mode
 
             // Encrypt sensitive data for storage
             const encryptedConfig = {
@@ -1373,26 +1079,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
             document.getElementById('mainPlatform').style.display = 'block';
             
             showAlert('🔐 Configuration saved with maximum security! Your API keys are encrypted and protected.', 'success');
-        }
-
-        // Skip to Testing Mode
-        function skipToTesting() {
-            // Set test mode
-            config.testMode = true;
-            
-            // Hide configuration section and show main platform
-            document.getElementById('configSection').style.display = 'none';
-            document.getElementById('mainPlatform').style.display = 'block';
-            
-            // Automatically switch to testing tab
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Activate testing tab
-            document.querySelector('[data-tab="testing"]').classList.add('active');
-            document.getElementById('testing').classList.add('active');
-            
-            showAlert('Welcome to Testing Mode! All features available with mock data - no APIs required.', 'success');
         }
 
         // Platform Information
@@ -1512,31 +1198,39 @@ While difficult times are inevitable, they need not define us. Through faith in 
             results.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Enhanced error handling with user guidance
         function showAlert(message, type = 'info') {
             const alertClass = `alert-${type}`;
             const icon = type === 'success' ? 'check-circle' : 
                         type === 'error' ? 'exclamation-triangle' : 
                         type === 'warning' ? 'exclamation-triangle' : 'info-circle';
             
+            // Add helpful guidance for common errors
+            let guidance = '';
+            if (type === 'error') {
+                guidance = '<br><br><strong>💡 Need Help?</strong> Try switching to Testing Mode to verify all features work, or check your API key configuration.';
+            }
+            
             const resultsContent = document.getElementById('resultsContent');
             resultsContent.innerHTML = `
                 <div class="alert ${alertClass}">
                     <i class="fas fa-${icon}"></i>
-                    <div>${message}</div>
+                    <div>${message}${guidance}</div>
                 </div>
             `;
             
             document.getElementById('results').classList.remove('hidden');
+            
+            // Auto-scroll to results on mobile
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
         }
 
         // Content Generation Functions
         async function generateBlogIdeas() {
-            if (config.testMode) {
-                // Use mock data in test mode
-                const ideas = TestingModule.generateMockContent('ideas');
-                showBlogIdeas(ideas);
-                return;
-            }
             showLoading('Generating Blog Ideas...');
             try {
                 const topic = document.getElementById('blogTopic').value.trim();
@@ -1604,35 +1298,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
         }
 
         async function generateFullPost() {
-            if (config.testMode) {
-                // Use mock data in test mode
-                showLoading('Creating Complete Blog Post...');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                const post = TestingModule.generateMockContent('fullPost');
-                let html = `
-                    <div class="content-results">
-                        <h3>📄 Complete Blog Post</h3>
-                        <div class="result-item">
-                            <h4>${post.title}</h4>
-                            <div class="post-meta">
-                                <span><strong>Word Count:</strong> ${post.wordCount} words</span> | 
-                                <span><strong>Reading Time:</strong> ${post.readingTime}</span> | 
-                                <span><strong>SEO Keywords:</strong> ${post.seoKeywords.join(', ')}</span>
-                            </div>
-                            <div class="post-content" style="max-height: 400px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px;">
-                                ${post.content.replace(/\n/g, '<br>')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('resultsTitle').textContent = 'Blog Post Created';
-                document.getElementById('resultsContent').innerHTML = html;
-                document.getElementById('results').classList.remove('hidden');
-                return;
-            }
-
             showLoading('Creating Complete Blog Post...');
             
             try {
@@ -1687,68 +1352,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
         }
 
         async function analyzeContentTrends() {
-            if (config.testMode) {
-                showLoading('Analyzing Christian Content Trends...');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                const trends = {
-                    trending: [
-                        { topic: 'Prayer and Meditation', growth: '+45%', engagement: 'High' },
-                        { topic: 'Family Values', growth: '+38%', engagement: 'Very High' },
-                        { topic: 'Biblical Study', growth: '+32%', engagement: 'High' },
-                        { topic: 'Christian Living', growth: '+28%', engagement: 'Medium' },
-                        { topic: 'Faith and Work', growth: '+25%', engagement: 'High' }
-                    ],
-                    seasonal: [
-                        { season: 'Christmas Season', opportunity: 'Advent devotionals', timing: 'November-December' },
-                        { season: 'Easter Season', opportunity: 'Resurrection stories', timing: 'February-April' },
-                        { season: 'Back to School', opportunity: 'Faith-based education', timing: 'August-September' }
-                    ],
-                    recommendations: [
-                        'Focus on prayer-related content - highest engagement',
-                        'Create family-oriented devotionals',
-                        'Develop workplace faith integration content',
-                        'Plan seasonal content 2-3 months ahead'
-                    ]
-                };
-                
-                let html = `
-                    <div class="content-results">
-                        <h3>📊 Christian Content Trends Analysis</h3>
-                        <div class="result-item">
-                            <h4>🔥 Trending Topics</h4>
-                            ${trends.trending.map(item => `
-                                <div style="background: #e8f5e8; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                                    <strong>${item.topic}</strong> - Growth: ${item.growth} | Engagement: ${item.engagement}
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="result-item">
-                            <h4>🗓️ Seasonal Opportunities</h4>
-                            ${trends.seasonal.map(item => `
-                                <div style="background: #e8f4fd; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                                    <strong>${item.season}</strong> - ${item.opportunity} (${item.timing})
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="result-item">
-                            <h4>💡 Content Recommendations</h4>
-                            ${trends.recommendations.map(rec => `
-                                <div style="background: #fff3cd; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                                    • ${rec}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('resultsTitle').textContent = 'Content Trends Analysis';
-                document.getElementById('resultsContent').innerHTML = html;
-                document.getElementById('results').classList.remove('hidden');
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-
             showLoading('Analyzing Christian Content Trends...');
             
             try {
@@ -1979,9 +1582,8 @@ While difficult times are inevitable, they need not define us. Through faith in 
 
         // Google Books API Integration
         async function searchGoogleBooks(query, maxResults = 10) {
-            if (config.testMode || !config.googleBooksKey) {
-                // Return mock data if in test mode or no API key
-                return TestingModule.getMockBooks().slice(0, maxResults);
+            if (!config.googleBooksKey) {
+                throw new Error('Google Books API key not configured. Please add your API key in the configuration section.');
             }
             
             try {
@@ -2041,63 +1643,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 showAlert('Error searching Open Library: ' + error.message, 'error');
                 return [];
             }
-        }
-
-        // Testing Functions
-        function showMockContent() {
-            const ideas = TestingModule.generateMockContent('ideas');
-            let html = '<div class="test-section"><h3>📝 Sample Content Ideas</h3>';
-            
-            ideas.forEach((idea, index) => {
-                html += `
-                    <div class="test-item">
-                        <strong>${index + 1}. ${idea.title}</strong><br>
-                        <em>${idea.description}</em><br>
-                        <small>Target: ${idea.targetAudience} | Reading Time: ${idea.estimatedReadTime}</small>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            document.getElementById('test-results').innerHTML = html;
-        }
-
-        function showMockBooks() {
-            const books = TestingModule.getMockBooks();
-            let html = '<div class="test-section"><h3>📚 Sample Christian Books</h3>';
-            
-            books.forEach((book, index) => {
-                html += `
-                    <div class="test-item">
-                        <strong>${book.title}</strong> by ${book.author}<br>
-                        <em>${book.description}</em><br>
-                        <small>Rating: ${book.rating}/5 (${book.reviews} reviews) | Price: ${book.price} | Genre: ${book.genre}</small>
-                        ${book.bestseller ? '<span style="color: #d4a574; font-weight: bold;"> ⭐ BESTSELLER</span>' : ''}
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            document.getElementById('test-results').innerHTML = html;
-        }
-
-        function showMockBlogPost() {
-            const post = TestingModule.generateMockContent('fullPost');
-            let html = `
-                <div class="test-section">
-                    <h3>📄 Sample Blog Post</h3>
-                    <div class="test-item">
-                        <strong>Title:</strong> ${post.title}<br>
-                        <strong>Word Count:</strong> ${post.wordCount} words<br>
-                        <strong>Reading Time:</strong> ${post.readingTime}<br>
-                        <strong>SEO Keywords:</strong> ${post.seoKeywords.join(', ')}<br><br>
-                        <div style="max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                            ${post.content.replace(/\n/g, '<br>')}
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('test-results').innerHTML = html;
         }
 
         // Display Functions
@@ -2272,82 +1817,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
             resultsContent.innerHTML = html;
         }
 
-        // Demo Functions for Testing Tab
-        function showMockContent() {
-            const ideas = TestingModule.generateMockContent('ideas');
-            showBlogIdeas(ideas);
-        }
-
-        function showMockBooks() {
-            const books = TestingModule.getMockBooks();
-            const resultsTitle = document.getElementById('resultsTitle');
-            const resultsContent = document.getElementById('resultsContent');
-            
-            resultsTitle.textContent = 'Sample Christian Books Data';
-            
-            let html = `
-                <div class="content-results">
-                    <h3>📚 Sample Book Research Results</h3>
-            `;
-            
-            books.forEach(book => {
-                html += `
-                    <div class="result-item">
-                        <h4>${book.title}</h4>
-                        <div class="post-meta">
-                            <span><strong>Author:</strong> ${book.author}</span> | 
-                            <span><strong>Rating:</strong> ${book.rating}/5.0 (${book.reviews} reviews)</span> | 
-                            <span><strong>Price:</strong> ${book.price}</span>
-                            ${book.bestseller ? ' | <span style="color: #dc3545; font-weight: bold;">📈 BESTSELLER</span>' : ''}
-                        </div>
-                        <div class="item-details">
-                            <strong>Genre:</strong> ${book.genre}<br>
-                            <strong>Published:</strong> ${book.publishDate}<br>
-                            <strong>Description:</strong> ${book.description}
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `
-                    <div class="test-notice">🧪 <strong>Demo Mode:</strong> This shows how book research results will appear with real API data.</div>
-                </div>
-            `;
-            
-            resultsContent.innerHTML = html;
-            document.getElementById('results').classList.remove('hidden');
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function showMockBlogPost() {
-            const post = TestingModule.generateMockContent('fullPost');
-            const resultsTitle = document.getElementById('resultsTitle');
-            const resultsContent = document.getElementById('resultsContent');
-            
-            resultsTitle.textContent = 'Sample Complete Blog Post';
-            
-            const html = `
-                <div class="content-results">
-                    <h3>📄 Sample Complete Blog Post</h3>
-                    <div class="result-item">
-                        <h4>${post.title}</h4>
-                        <div class="post-meta">
-                            <span><strong>Word Count:</strong> ${post.wordCount} words</span> | 
-                            <span><strong>Reading Time:</strong> ${post.readingTime}</span> | 
-                            <span><strong>SEO Keywords:</strong> ${post.seoKeywords.join(', ')}</span>
-                        </div>
-                        <div class="post-content" style="max-height: 500px; overflow-y: auto; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px; line-height: 1.6;">
-                            ${post.content.replace(/\n/g, '<br>')}
-                        </div>
-                    </div>
-                    <div class="test-notice">🧪 <strong>Demo Mode:</strong> This demonstrates the quality and format of AI-generated blog posts.</div>
-                </div>
-            `;
-            
-            resultsContent.innerHTML = html;
-            document.getElementById('results').classList.remove('hidden');
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-        }
+        // End of production functions
     </script>
 </body>
 </html>
