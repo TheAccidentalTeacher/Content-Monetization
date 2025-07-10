@@ -1535,7 +1535,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 const topic = document.getElementById('blogTopic').value.trim();
                 const messages = [
                     { role: 'system', content: 'You are an expert Christian content strategist.' },
-                    { role: 'user', content: `Generate 10 unique, trending Christian blog post ideas${topic ? ' about ' + topic : ''}.` }
+                    { role: 'user', content: `Generate 10 unique, trending Christian blog post ideas${topic ? ' about ' + topic : ''}. Format each idea as a numbered list.` }
                 ];
                 const response = await fetch('/.netlify/functions/openai-proxy', {
                     method: 'POST',
@@ -1547,15 +1547,29 @@ While difficult times are inevitable, they need not define us. Through faith in 
                         temperature: 0.8
                     })
                 });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    showAlert(`API Error: ${errorData.error || 'Unknown error'}`, 'error');
+                    return;
+                }
+                
                 const data = await response.json();
+                console.log('OpenAI Response:', data);
+                
                 if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
                     // Parse ideas from OpenAI response
                     const ideas = parseBlogIdeas(data.choices[0].message.content);
                     showBlogIdeas(ideas);
+                } else if (data.error) {
+                    showAlert(`OpenAI Error: ${data.error.message || data.error}`, 'error');
                 } else {
+                    console.error('Unexpected response format:', data);
                     showAlert('Failed to generate blog ideas. Please try again.', 'error');
                 }
             } catch (error) {
+                console.error('Network Error:', error);
                 showAlert('Error contacting OpenAI. Please try again later.', 'error');
             }
         }
