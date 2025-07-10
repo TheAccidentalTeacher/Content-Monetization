@@ -4,7 +4,21 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
-  // Only allow POST requests
+  // Handle GET requests for checking API key availability
+  if (event.httpMethod === 'GET') {
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ available: !!OPENAI_API_KEY }),
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
+    };
+  }
+
+  // Only allow POST requests for actual API calls
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,

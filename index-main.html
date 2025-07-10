@@ -1227,6 +1227,53 @@ While difficult times are inevitable, they need not define us. Through faith in 
         // Load saved configuration with security
         function loadConfiguration() {
             try {
+                // First, check if OpenAI API key is available in the backend
+                checkBackendApiKey().then(hasBackendKey => {
+                    if (hasBackendKey) {
+                        // Backend has the API key, proceed directly to main platform
+                        document.getElementById('configSection').style.display = 'none';
+                        document.getElementById('mainPlatform').style.display = 'block';
+                        showAlert('🔐 Connected to secure backend. Platform ready to use.', 'success');
+                        return;
+                    }
+                    
+                    // If no backend key, check local storage as fallback
+                    loadLocalConfiguration();
+                }).catch(error => {
+                    console.warn('Backend check failed, falling back to local configuration:', error);
+                    loadLocalConfiguration();
+                });
+            } catch (error) {
+                console.warn('Configuration loading failed - starting fresh for security');
+                localStorage.removeItem('platformConfig');
+                loadLocalConfiguration();
+            }
+        }
+
+        // Check if API key is available in the backend
+        async function checkBackendApiKey() {
+            try {
+                const response = await fetch('/.netlify/functions/openai-proxy', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.available === true;
+                }
+                return false;
+            } catch (error) {
+                console.warn('Failed to check backend API key availability:', error);
+                return false;
+            }
+        }
+
+        // Load configuration from local storage (original logic)
+        function loadLocalConfiguration() {
+            try {
                 const saved = localStorage.getItem('platformConfig');
                 if (saved) {
                     const savedConfig = JSON.parse(saved);
@@ -1264,7 +1311,7 @@ While difficult times are inevitable, they need not define us. Through faith in 
                     }
                 }
             } catch (error) {
-                console.warn('Configuration loading failed - starting fresh for security');
+                console.warn('Local configuration loading failed - starting fresh for security');
                 localStorage.removeItem('platformConfig');
             }
         }
