@@ -1231,6 +1231,8 @@ While difficult times are inevitable, they need not define us. Through faith in 
                 checkBackendApiKey().then(hasBackendKey => {
                     if (hasBackendKey) {
                         // Backend has the API key, proceed directly to main platform
+                        config.testMode = false; // Set to live mode since backend API key is available
+                        config.openaiKey = 'backend-managed'; // Indicate API key is managed by backend
                         document.getElementById('configSection').style.display = 'none';
                         document.getElementById('mainPlatform').style.display = 'block';
                         showAlert('🔐 Connected to secure backend. Platform ready to use.', 'success');
@@ -1601,7 +1603,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
                                 ${post.content.replace(/\n/g, '<br>')}
                             </div>
                         </div>
-                        <div class="test-notice">🧪 <strong>Test Mode:</strong> This is sample content. Add your OpenAI API key to generate real blog posts.</div>
                     </div>
                 `;
                 
@@ -1717,7 +1718,6 @@ While difficult times are inevitable, they need not define us. Through faith in 
                                 </div>
                             `).join('')}
                         </div>
-                        <div class="test-notice">🧪 <strong>Test Mode:</strong> This is sample trend analysis. Configure your OpenAI API key for real-time trend analysis.</div>
                     </div>
                 `;
                 
