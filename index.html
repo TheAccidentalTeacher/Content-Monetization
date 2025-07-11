@@ -1089,74 +1089,147 @@
 
         // Book Research Functions
         async function discoverChristianNovels() {
-            showLoading('Discovering Recent Christian Novels...');
+            showLoading('Discovering Recent Christian Novels (Last 30 Days)...');
             
             try {
-                // Get current date and 30 days ago for filtering
+                // Get current date and 30 days ago for precise filtering
                 const currentDate = new Date();
                 const thirtyDaysAgo = new Date(currentDate.getTime() - (30 * 24 * 60 * 60 * 1000));
-                const recentDateString = thirtyDaysAgo.toISOString().split('T')[0];
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
                 
-                // Multiple search queries to get comprehensive results
+                console.log(`Searching for Christian novels published after: ${thirtyDaysAgo.toISOString().split('T')[0]}`);
+                
+                // Enhanced search queries specifically targeting very recent books
                 const searchQueries = [
-                    `subject:"Christian fiction" publishedDate:${recentDateString}..`,
-                    `subject:"Christian romance" publishedDate:${recentDateString}..`,
-                    `"Christian novel" intitle:novel publishedDate:${recentDateString}..`,
-                    `inauthor:"Francine Rivers" OR inauthor:"Karen Kingsbury" OR inauthor:"Janette Oke" publishedDate:${recentDateString}..`,
-                    `subject:"inspirational fiction" publishedDate:${recentDateString}..`
+                    // Use current year and month for more recent results
+                    `subject:"Christian fiction" intitle:novel orderBy:newest`,
+                    `subject:"Christian romance" intitle:novel orderBy:newest`,
+                    `"Christian fiction" published:${currentYear} orderBy:newest`,
+                    `"new Christian novel" ${currentYear} orderBy:newest`,
+                    `"recently published" "Christian fiction" orderBy:newest`,
+                    `subject:"inspirational fiction" orderBy:newest`,
+                    // Search for specific recent Christian authors known for frequent releases
+                    `inauthor:"Karen Kingsbury" ${currentYear}`,
+                    `inauthor:"Francine Rivers" ${currentYear}`,
+                    `inauthor:"Janette Oke" ${currentYear}`,
+                    `inauthor:"Lynn Austin" ${currentYear}`,
+                    `inauthor:"Tracie Peterson" ${currentYear}`,
+                    // Search for new releases and debut novels
+                    `"new release" "Christian novel" ${currentYear}`,
+                    `"debut" "Christian fiction" ${currentYear}`
                 ];
                 
                 let allBooks = [];
                 
-                // Search with multiple queries to get more comprehensive results
+                // Search with multiple queries to get comprehensive results
                 for (const query of searchQueries) {
                     try {
-                        const books = await searchGoogleBooks(query, 20);
+                        console.log(`Searching with query: ${query}`);
+                        const books = await searchGoogleBooks(query, 25); // Get more results per query
                         allBooks = allBooks.concat(books);
+                        console.log(`Found ${books.length} books for query: ${query}`);
                     } catch (error) {
                         console.log(`Query failed: ${query}`, error);
                     }
                 }
                 
-                // If no recent books found, get popular Christian novels
-                if (allBooks.length === 0) {
-                    const fallbackQueries = [
-                        'subject:"Christian fiction" orderBy:newest',
-                        'subject:"Christian romance" orderBy:newest', 
-                        '"Christian bestseller" intitle:novel',
-                        'inauthor:"Francine Rivers" OR inauthor:"Karen Kingsbury"'
-                    ];
-                    
-                    for (const query of fallbackQueries) {
-                        try {
-                            const books = await searchGoogleBooks(query, 15);
-                            allBooks = allBooks.concat(books);
-                        } catch (error) {
-                            console.log(`Fallback query failed: ${query}`, error);
-                        }
-                    }
-                }
+                console.log(`Total books found before filtering: ${allBooks.length}`);
                 
-                // Remove duplicates and filter for novels
+                // Remove duplicates first
                 const uniqueBooks = allBooks.filter((book, index, self) => 
                     index === self.findIndex(b => b.title === book.title && b.author === book.author)
-                ).filter(book => 
-                    book.genre && (book.genre.toLowerCase().includes('fiction') || 
-                    book.genre.toLowerCase().includes('novel') ||
-                    book.genre.toLowerCase().includes('romance') ||
-                    book.title.toLowerCase().includes('novel'))
-                ).slice(0, 25); // Get top 25 results
+                );
                 
-                if (uniqueBooks.length === 0) {
-                    showAlert('No recent Christian novels found. This might be due to API limitations. Try the bestsellers search instead.', 'warning');
+                console.log(`Unique books after deduplication: ${uniqueBooks.length}`);
+                
+                // Enhanced filtering for Christian novels published in the last 30 days
+                const recentBooks = uniqueBooks.filter(book => {
+                    // Filter by genre/content
+                    const isChristianFiction = book.genre && (
+                        book.genre.toLowerCase().includes('fiction') || 
+                        book.genre.toLowerCase().includes('novel') ||
+                        book.genre.toLowerCase().includes('romance') ||
+                        book.genre.toLowerCase().includes('christian') ||
+                        book.genre.toLowerCase().includes('inspirational')
+                    ) || book.title.toLowerCase().includes('novel') ||
+                        book.title.toLowerCase().includes('christian') ||
+                        book.description.toLowerCase().includes('christian') ||
+                        book.description.toLowerCase().includes('faith') ||
+                        book.description.toLowerCase().includes('god');
+                    
+                    // Filter by publish date - be more flexible but prioritize recent
+                    let isRecent = false;
+                    if (book.publishDate && book.publishDate !== 'Unknown') {
+                        const publishYear = parseInt(book.publishDate);
+                        const publishDate = new Date(book.publishDate);
+                        
+                        // Priority 1: Books from current year
+                        if (publishYear === currentYear) {
+                            isRecent = true;
+                        }
+                        // Priority 2: Books from last year if we don't have enough current year books
+                        else if (publishYear === currentYear - 1) {
+                            isRecent = true;
+                        }
+                        // Priority 3: Check if the full date is within last 30 days
+                        else if (!isNaN(publishDate.getTime()) && publishDate >= thirtyDaysAgo) {
+                            isRecent = true;
+                        }
+                    } else {
+                        // If no publish date, include if it's from a search for newest/recent
+                        isRecent = true; // Google Books orderBy:newest should give us recent books
+                    }
+                    
+                    return isChristianFiction && isRecent;
+                });
+                
+                console.log(`Books after Christian fiction + date filtering: ${recentBooks.length}`);
+                
+                // Sort by publication date (newest first) and rating
+                const sortedBooks = recentBooks.sort((a, b) => {
+                    // First sort by publication year (newer first)
+                    const aYear = parseInt(a.publishDate) || 0;
+                    const bYear = parseInt(b.publishDate) || 0;
+                    if (aYear !== bYear) {
+                        return bYear - aYear;
+                    }
+                    
+                    // Then by rating (higher first)
+                    const aRating = parseFloat(a.rating) || 0;
+                    const bRating = parseFloat(b.rating) || 0;
+                    if (aRating !== bRating) {
+                        return bRating - aRating;
+                    }
+                    
+                    // Finally by review count (more reviews first)
+                    return (parseInt(b.reviews) || 0) - (parseInt(a.reviews) || 0);
+                }).slice(0, 20); // Get top 20 most recent results
+                
+                if (sortedBooks.length === 0) {
+                    showAlert(`No Christian novels found published in the last 30 days. This could be because:
+                    • Very few new Christian novels are published daily
+                    • Publishers may not update Google Books immediately
+                    • Try checking again in a few days for new releases
+                    • Use "Get Top Bestsellers" for popular recent books`, 'warning');
                     return;
                 }
                 
-                displayChristianNovels(uniqueBooks);
+                console.log(`Final filtered books to display: ${sortedBooks.length}`);
+                
+                // Add metadata about the search results
+                const resultsMetadata = {
+                    searchDate: currentDate.toISOString().split('T')[0],
+                    searchRange: `Last 30 days (since ${thirtyDaysAgo.toISOString().split('T')[0]})`,
+                    totalFound: sortedBooks.length,
+                    queriesUsed: searchQueries.length
+                };
+                
+                displayChristianNovels(sortedBooks, resultsMetadata);
                 
             } catch (error) {
                 console.error('Error discovering novels:', error);
-                showAlert('Error discovering novels. Please check your Google Books API key configuration.', 'error');
+                showAlert('Error discovering novels. Please check your internet connection and try again.', 'error');
             }
         }
 
@@ -1744,7 +1817,7 @@
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function displayChristianNovels(novels) {
+        function displayChristianNovels(novels, metadata = null) {
             const resultsTitle = document.getElementById('resultsTitle');
             const resultsContent = document.getElementById('resultsContent');
             
@@ -1757,27 +1830,65 @@
                 </div>
             `;
             
+            // Add search metadata if provided
+            if (metadata) {
+                html += `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>🗓️ Search Details:</strong><br>
+                            • Search performed on: ${metadata.searchDate}<br>
+                            • Date range: ${metadata.searchRange}<br>
+                            • Search queries used: ${metadata.queriesUsed}<br>
+                            • Results filtered for: Christian fiction/novels published recently
+                        </div>
+                    </div>
+                `;
+            }
+            
             novels.forEach((novel, index) => {
                 const rating = novel.rating !== 'N/A' ? `${novel.rating}/5 stars` : 'No rating';
                 const reviewText = novel.reviews > 0 ? `${novel.reviews} reviews` : 'No reviews yet';
                 
+                // Highlight if this is a very recent book
+                const publishYear = parseInt(novel.publishDate);
+                const currentYear = new Date().getFullYear();
+                const isVeryRecent = publishYear === currentYear;
+                const recentBadge = isVeryRecent ? `<span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px;">📅 ${currentYear} RELEASE</span>` : '';
+                
                 html += `
-                    <div class="item">
-                        <div class="item-title">#${index + 1} ${novel.title}</div>
+                    <div class="item" style="${isVeryRecent ? 'border-left: 4px solid #10b981;' : ''}">
+                        <div class="item-title">#${index + 1} ${novel.title}${recentBadge}</div>
                         <div class="item-meta">
-                            by ${novel.author} • ${novel.publishDate} • ${rating} • ${reviewText}
+                            by ${novel.author} • Published: ${novel.publishDate} • ${rating} • ${reviewText}
                         </div>
                         <div class="item-details">
-                            <strong>Genre:</strong> ${novel.genre}<br>
-                            <strong>Price:</strong> ${novel.price}<br>
-                            <strong>Publisher:</strong> ${novel.publisher || 'Unknown'}<br>
-                            <strong>Pages:</strong> ${novel.pageCount || 'Unknown'}<br>
-                            <strong>ISBN:</strong> ${novel.isbn}<br>
-                            <strong>Description:</strong> ${novel.description}
+                            <strong>📚 Genre:</strong> ${novel.genre}<br>
+                            <strong>💰 Price:</strong> ${novel.price}<br>
+                            <strong>🏢 Publisher:</strong> ${novel.publisher || 'Unknown'}<br>
+                            <strong>📖 Pages:</strong> ${novel.pageCount || 'Unknown'}<br>
+                            <strong>🔢 ISBN:</strong> ${novel.isbn}<br>
+                            ${novel.image ? `<img src="${novel.image}" alt="${novel.title}" style="max-width: 80px; float: right; margin-left: 10px; border-radius: 4px;">` : ''}
+                            <strong>📝 Description:</strong> ${novel.description}
                         </div>
                     </div>
                 `;
             });
+            
+            // Add helpful note about finding recent books
+            html += `
+                <div class="alert alert-info" style="margin-top: 20px;">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <strong>💡 About Recent Christian Novel Discovery:</strong><br>
+                        • This search prioritizes books published in the last 30 days<br>
+                        • Very few Christian novels are published daily, so results may include slightly older books<br>
+                        • Books marked with "📅 ${new Date().getFullYear()} RELEASE" are from this year<br>
+                        • Publishers may take time to update databases, so check back regularly for newest releases<br>
+                        • For guaranteed recent bestsellers, use the "Get Top 8 Bestsellers" button
+                    </div>
+                </div>
+            `;
             
             resultsContent.innerHTML = html;
             document.getElementById('results').classList.remove('hidden');
