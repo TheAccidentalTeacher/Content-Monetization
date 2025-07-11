@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${apiKey}`;
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&orderBy=relevance&printType=books&key=${apiKey}`;
         
         const response = await fetch(url);
         
