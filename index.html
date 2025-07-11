@@ -1403,31 +1403,13 @@
             showLoading('Discovering Recent Christian Novels...');
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                const novels = [
-                    {
-                        title: "The Hope We Hold",
-                        author: "Karen Kingsbury",
-                        publishDate: "2024-11-15",
-                        rank: 12,
-                        rating: 4.6,
-                        description: "A heartwarming story of faith, family, and second chances in small-town America."
-                    },
-                    {
-                        title: "Whispers of Grace",
-                        author: "Francine Rivers",
-                        publishDate: "2024-11-08",
-                        rank: 8,
-                        rating: 4.8,
-                        description: "An inspiring tale of redemption and God's unfailing love through life's trials."
-                    }
-                ];
-                
-                displayChristianNovels(novels);
+                // Use Google Books API to find recent Christian novels
+                const books = await searchGoogleBooks('Christian novels 2024 2025', 10);
+                displayChristianNovels(books);
                 
             } catch (error) {
-                showAlert('Error discovering novels: ' + error.message, 'error');
+                console.error('Error discovering novels:', error);
+                showAlert('Error discovering novels. Please check your Google Books API key configuration.', 'error');
             }
         }
 
@@ -1435,10 +1417,12 @@
             showLoading('Getting Top Christian Bestsellers...');
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 2500));
-                showAlert('Top bestsellers feature is being enhanced! This will show the top 8 Christian novels based on sales data from multiple sources.', 'info');
+                // Search for bestselling Christian books
+                const books = await searchGoogleBooks('Christian bestseller 2024 2025', 8);
+                displayChristianNovels(books);
             } catch (error) {
-                showAlert('Error getting bestsellers: ' + error.message, 'error');
+                console.error('Error getting bestsellers:', error);
+                showAlert('Error getting bestsellers. Please check your Google Books API key configuration.', 'error');
             }
         }
 
