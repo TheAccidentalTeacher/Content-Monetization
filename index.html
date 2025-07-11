@@ -303,7 +303,7 @@
             animation: spin 1s linear infinite;
         }
 
-        /* Testing Styles */
+        /* Results Display Styles */
         .test-results {
             background: var(--white);
             border-radius: 15px;
@@ -384,11 +384,11 @@
             }
         }
 
-        /* Test Mode Styles */
-        .test-notice {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
+        /* Production Styles */
+        .production-notice {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
             padding: 12px 15px;
             border-radius: 8px;
             margin-top: 15px;
@@ -1208,7 +1208,7 @@
             // Add helpful guidance for common errors
             let guidance = '';
             if (type === 'error') {
-                guidance = '<br><br><strong>💡 Need Help?</strong> Try switching to Testing Mode to verify all features work, or check your API key configuration.';
+                guidance = '<br><br><strong>💡 Need Help?</strong> Check your API key configuration or try again in a moment.';
             }
             
             const resultsContent = document.getElementById('resultsContent');
