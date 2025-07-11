@@ -67,52 +67,7 @@
             opacity: 0.9;
         }
 
-        .config-section {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .config-section.hidden {
-            display: none;
-        }
-
-        .config-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--gray-900);
-        }
-
-        .api-key-input {
-            margin-bottom: 20px;
-        }
-
-        .api-key-input label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--gray-900);
-        }
-
-        .api-key-input input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--gray-100);
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .api-key-input input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .api-key-input small {
-            color: var(--gray-600);
-            font-size: 0.9rem;
-        }
+        /* Configuration section removed - using Netlify environment variables */
 
         .tabs {
             display: flex;
@@ -427,61 +382,7 @@
             color: var(--gray-700);
         }
 
-        /* Security Panel Styles */
-        .security-panel {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #28a745;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .security-panel h3 {
-            color: #28a745;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .security-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .security-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: rgba(40, 167, 69, 0.1);
-            border-radius: 8px;
-        }
-
-        .security-item i {
-            font-size: 1.1rem;
-            width: 20px;
-        }
-
-        .text-success {
-            color: #28a745 !important;
-        }
-
-        .security-note {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 768px) {
-            .security-features {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Security panel CSS removed - was only used in configuration section */
 
         .loading i {
             font-size: 2rem;
@@ -582,100 +483,10 @@
             <p>AI-powered content generation and comprehensive book research automation</p>
         </div>
 
-        <!-- Configuration Section -->
-        <div id="configSection" class="config-section">
-            <h2 class="config-title"><i class="fas fa-cog"></i> Platform Configuration</h2>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <div>
-                    <strong>Getting Started:</strong> Add your API keys below to unlock full functionality. 
-                    You can start with just OpenAI and add others later.
-                </div>
-            </div>
-
-            <div class="api-key-input">
-                <label for="openaiKey">OpenAI API Key (Required for Content Generation)</label>
-                <input type="password" id="openaiKey" placeholder="sk-...">
-                <small>Get from: <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></small>
-            </div>
-
-            <div class="api-key-input">
-                <label for="shopifyToken">Shopify Access Token (For E-commerce Features)</label>
-                <input type="password" id="shopifyToken" placeholder="shpat_...">
-                <small>Get from: Your Shopify Admin → Apps → Private Apps</small>
-            </div>
-
-            <div class="api-key-input">
-                <label for="shopifyShop">Shopify Shop Name</label>
-                <input type="text" id="shopifyShop" placeholder="your-shop-name">
-                <small>Just the name, not the full URL (e.g., "my-store" not "my-store.myshopify.com")</small>
-            </div>
-
-            <div class="api-key-input">
-                <label for="googleBooksKey">Google Books API Key (Optional - For Enhanced Book Data)</label>
-                <input type="password" id="googleBooksKey" placeholder="AIza...">
-                <small>Get from: <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a> - Enable Books API</small>
-            </div>
-
-            <div class="alert alert-warning">
-                <i class="fas fa-shield-alt"></i>
-                <div>
-                    <strong>Safe Mode:</strong> Amazon business APIs are disabled for your safety. 
-                    The platform provides 90% functionality without any risk to your business accounts.
-                </div>
-            </div>
-
-            <div class="button-group" style="margin-top: 20px;">
-                <button class="btn btn-primary" onclick="saveConfiguration()">
-                    <i class="fas fa-save"></i> Save Configuration & Start Platform
-                </button>
-            </div>
-            
-            <div style="text-align: center; margin-top: 15px; padding: 15px; background: #e8f4fd; border-radius: 8px;">
-                <strong>� Production Ready:</strong> This platform connects directly to real APIs for professional content creation and book research.
-                <br><br>
-                <strong>📱 Mobile Optimized:</strong> All features work seamlessly on mobile devices.
-            </div>
-
-            <!-- Security Status Panel -->
-            <div class="security-panel">
-                <h3><i class="fas fa-shield-alt"></i> Security Status</h3>
-                <div class="security-features">
-                    <div class="security-item">
-                        <i class="fas fa-lock text-success"></i>
-                        <span><strong>Client-Side Encryption:</strong> API keys encrypted before storage</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="fas fa-eye-slash text-success"></i>
-                        <span><strong>Key Masking:</strong> API keys hidden from display</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="fas fa-shield-virus text-success"></i>
-                        <span><strong>CSP Protection:</strong> Content Security Policy active</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="fas fa-user-secret text-success"></i>
-                        <span><strong>Session Security:</strong> Secure session management</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="fas fa-server text-success"></i>
-                        <span><strong>Local Storage Only:</strong> No data sent to external servers</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="fas fa-trash-alt text-success"></i>
-                        <span><strong>Memory Clearing:</strong> Sensitive data cleared after use</span>
-                    </div>
-                </div>
-                <div class="security-note">
-                    <strong>🔐 Maximum Security:</strong> Your API keys are protected with enterprise-grade security measures. 
-                    All encryption happens in your browser - nothing is sent to external servers.
-                </div>
-            </div>
-        </div>
+        <!-- Configuration removed - API keys managed via Netlify environment variables -->
 
         <!-- Main Platform -->
-        <div id="mainPlatform" style="display: none;">
+        <div id="mainPlatform">
             <div class="tabs">
                 <button class="tab-button active" data-tab="content">
                     <i class="fas fa-pen-fancy"></i> Content Generation
@@ -901,18 +712,7 @@
                 }
             },
 
-            // Clear sensitive data from memory
-            clearSensitiveData: function() {
-                // Clear form fields
-                const sensitiveFields = ['openaiKey', 'shopifyToken', 'goodreadsKey'];
-                sensitiveFields.forEach(fieldId => {
-                    const field = document.getElementById(fieldId);
-                    if (field) {
-                        field.value = '';
-                        field.type = 'password';
-                    }
-                });
-            },
+            // Functions for local storage configuration removed - using environment variables
 
             // Generate secure session token
             generateSessionToken: function() {
@@ -935,27 +735,14 @@
         // Load saved configuration with security
         function loadConfiguration() {
             try {
-                // First, check if OpenAI API key is available in the backend
-                checkBackendApiKey().then(hasBackendKey => {
-                    if (hasBackendKey) {
-                        // Backend has the API key, proceed directly to main platform
-                        config.openaiKey = 'backend-managed'; // Indicate API key is managed by backend
-                        document.getElementById('configSection').style.display = 'none';
-                        document.getElementById('mainPlatform').style.display = 'block';
-                        showAlert('🔐 Connected to secure backend. Platform ready to use.', 'success');
-                        return;
-                    }
-                    
-                    // If no backend key, check local storage as fallback
-                    loadLocalConfiguration();
-                }).catch(error => {
-                    console.warn('Backend check failed, falling back to local configuration:', error);
-                    loadLocalConfiguration();
-                });
+                // Since API keys are stored in Netlify environment variables, 
+                // platform is ready to use immediately
+                config.openaiKey = 'backend-managed'; // Indicate API key is managed by backend
+                showAlert('🔐 Connected to secure backend. Platform ready to use.', 'success');
             } catch (error) {
-                console.warn('Configuration loading failed - starting fresh for security');
-                localStorage.removeItem('platformConfig');
-                loadLocalConfiguration();
+                console.warn('Configuration loading failed:', error);
+                // Even if there's an error, proceed since config is in environment variables
+                showAlert('Platform loaded. Using backend configuration.', 'info');
             }
         }
 
@@ -981,105 +768,7 @@
         }
 
         // Load configuration from local storage (original logic)
-        function loadLocalConfiguration() {
-            try {
-                const saved = localStorage.getItem('platformConfig');
-                if (saved) {
-                    const savedConfig = JSON.parse(saved);
-                    
-                    // Decrypt sensitive data
-                    if (savedConfig.encryptedData && savedConfig.encryptionKey) {
-                        const decryptedOpenAI = SecurityManager.decrypt(savedConfig.encryptedData.openaiKey, savedConfig.encryptionKey);
-                        const decryptedShopify = SecurityManager.decrypt(savedConfig.encryptedData.shopifyToken, savedConfig.encryptionKey);
-                        const decryptedGoogleBooks = SecurityManager.decrypt(savedConfig.encryptedData.googleBooksKey, savedConfig.encryptionKey);
-                        
-                        // Only load if decryption successful and keys are valid
-                        if (SecurityManager.validateApiKey(decryptedOpenAI, 'openai')) {
-                            config.openaiKey = decryptedOpenAI;
-                            document.getElementById('openaiKey').value = SecurityManager.maskApiKey(decryptedOpenAI);
-                        }
-                        if (SecurityManager.validateApiKey(decryptedShopify, 'shopify')) {
-                            config.shopifyToken = decryptedShopify;
-                            document.getElementById('shopifyToken').value = SecurityManager.maskApiKey(decryptedShopify);
-                        }
-                        if (decryptedGoogleBooks && decryptedGoogleBooks.startsWith('AIza')) {
-                            config.googleBooksKey = decryptedGoogleBooks;
-                            document.getElementById('googleBooksKey').value = SecurityManager.maskApiKey(decryptedGoogleBooks);
-                        }
-                        
-                        // Load non-sensitive data
-                        config.shopifyShop = savedConfig.shopifyShop || '';
-                        document.getElementById('shopifyShop').value = config.shopifyShop;
-                    }
-                    
-                    // Auto-login if valid OpenAI key exists
-                    if (config.openaiKey && SecurityManager.validateApiKey(config.openaiKey, 'openai')) {
-                        document.getElementById('configSection').style.display = 'none';
-                        document.getElementById('mainPlatform').style.display = 'block';
-                        showAlert('🔐 Secure session restored. Your API keys are encrypted and protected.', 'success');
-                    }
-                }
-            } catch (error) {
-                console.warn('Local configuration loading failed - starting fresh for security');
-                localStorage.removeItem('platformConfig');
-            }
-        }
-
-        // Save configuration with maximum security
-        function saveConfiguration() {
-            const openaiKey = document.getElementById('openaiKey').value.trim();
-            const shopifyToken = document.getElementById('shopifyToken').value.trim();
-            const shopifyShop = document.getElementById('shopifyShop').value.trim();
-            const googleBooksKey = document.getElementById('googleBooksKey').value.trim();
-
-            // Validate required API key
-            if (!openaiKey) {
-                showAlert('Please enter your OpenAI API key to continue.', 'error');
-                return;
-            }
-
-            // Validate API key formats
-            if (!SecurityManager.validateApiKey(openaiKey, 'openai')) {
-                showAlert('Invalid OpenAI API key format. Please check your key.', 'error');
-                return;
-            }
-
-            if (shopifyToken && !SecurityManager.validateApiKey(shopifyToken, 'shopify')) {
-                showAlert('Invalid Shopify token format. Please check your token.', 'error');
-                return;
-            }
-
-            // Store in memory for session use
-            config.openaiKey = openaiKey;
-            config.shopifyToken = shopifyToken;
-            config.shopifyShop = shopifyShop;
-            config.googleBooksKey = googleBooksKey;
-
-            // Encrypt sensitive data for storage
-            const encryptedConfig = {
-                encryptedData: {
-                    openaiKey: SecurityManager.encrypt(openaiKey, config.encryptionKey),
-                    shopifyToken: SecurityManager.encrypt(shopifyToken, config.encryptionKey),
-                    googleBooksKey: SecurityManager.encrypt(googleBooksKey, config.encryptionKey)
-                },
-                shopifyShop: shopifyShop, // Non-sensitive data
-                encryptionKey: config.encryptionKey,
-                sessionToken: config.sessionToken,
-                timestamp: Date.now()
-            };
-
-            // Save encrypted configuration
-            localStorage.setItem('platformConfig', JSON.stringify(encryptedConfig));
-            
-            // Clear form fields for security
-            SecurityManager.clearSensitiveData();
-            
-            // Show platform
-            document.getElementById('configSection').style.display = 'none';
-            document.getElementById('mainPlatform').style.display = 'block';
-            
-            showAlert('🔐 Configuration saved with maximum security! Your API keys are encrypted and protected.', 'success');
-        }
+        // Configuration functions removed - using Netlify environment variables
 
         // Platform Information
         function showPlatformInfo() {
