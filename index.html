@@ -1474,58 +1474,24 @@
                 const data = await response.json();
                 
                 return data.docs?.map(doc => {
-                    // Enhanced data extraction for Open Library
-                    let description = 'No description available';
-                    if (doc.first_sentence && doc.first_sentence.length > 0) {
-                        description = doc.first_sentence[0];
-                    } else if (doc.subject && doc.subject.length > 0) {
-                        description = `Topics: ${doc.subject.slice(0, 3).join(', ')}`;
-                    }
-                    
-                    // Try to extract year from publish date
-                    let publishYear = 'Unknown';
-                    if (doc.first_publish_year) {
-                        publishYear = doc.first_publish_year.toString();
-                    } else if (doc.publish_date && doc.publish_date.length > 0) {
-                        const dateMatch = doc.publish_date[0].match(/\d{4}/);
-                        if (dateMatch) {
-                            publishYear = dateMatch[0];
-                        }
-                    }
-                    
-                    // Get genre from subjects
-                    const subjects = doc.subject || [];
-                    let genre = 'General';
-                    if (subjects.length > 0) {
-                        genre = subjects.find(s => 
-                            s.toLowerCase().includes('fiction') || 
-                            s.toLowerCase().includes('novel') || 
-                            s.toLowerCase().includes('romance')
-                        ) || subjects[0];
-                    }
-                    
                     return {
                         title: doc.title || 'Unknown Title',
-                        author: doc.author_name?.[0] || 'Unknown Author',
-                        description: description,
-                        publishDate: publishYear,
-                        isbn: doc.isbn?.[0] || 'No ISBN',
-                        subjects: doc.subject?.slice(0, 3) || [],
-                        editions: doc.edition_count || 1,
-                        openLibraryId: doc.key,
-                        genre: genre,
+                        author: doc.author_name ? doc.author_name[0] : 'Unknown Author',
+                        publishDate: doc.first_publish_year || 'Unknown',
+                        isbn: doc.isbn ? doc.isbn[0] : 'N/A',
+                        description: 'Description available via Open Library',
                         rating: 'N/A',
                         reviews: 0,
-                        price: 'Check bookstore',
-                        publisher: doc.publisher?.[0] || 'Unknown Publisher',
-                        language: doc.language?.[0] || 'English',
-                        pageCount: doc.number_of_pages_median || 'Unknown'
+                        price: 'Price varies',
+                        genre: doc.subject ? doc.subject[0] : 'General',
+                        publisher: doc.publisher ? doc.publisher[0] : 'Unknown',
+                        pageCount: doc.number_of_pages_median || 'Unknown',
+                        editions: doc.edition_count || 1
                     };
                 }) || [];
                 
             } catch (error) {
                 console.error('Open Library API error:', error);
-                showAlert('Error searching Open Library: ' + error.message, 'error');
                 return [];
             }
         }
@@ -1548,16 +1514,13 @@
                 html += `
                     <div class="item">
                         <div class="item-title">${index + 1}. ${idea.title}</div>
-                        <div class="item-meta">Engagement Score: ${idea.score}/10</div>
-                        <div class="item-details">
-                            <strong>Description:</strong> ${idea.description}<br>
-                            <strong>Keywords:</strong> ${idea.keywords.join(', ')}
-                        </div>
                     </div>
                 `;
             });
             
             resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function displayChristianNovels(novels) {
@@ -1596,6 +1559,8 @@
             });
             
             resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function displayBookshopBooks(books, authorName) {
@@ -1635,11 +1600,8 @@
             });
             
             resultsContent.innerHTML = html;
-                    </div>
-                `;
-            });
-            
-            resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function displayAuthorAnalysis(analysis) {
@@ -1689,6 +1651,8 @@
             });
             
             resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function displayAnalytics(stats) {
@@ -1724,6 +1688,8 @@
             `;
             
             resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         // End of production functions
