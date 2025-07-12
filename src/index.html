@@ -1400,16 +1400,165 @@
 
         // Book Research Functions
         async function discoverChristianNovels() {
-            showLoading('Discovering Recent Christian Novels...');
+            showLoading('Discovering Recent Christian Novels (Last 30 Days)...');
             
             try {
-                // Use Google Books API to find recent Christian novels
-                const books = await searchGoogleBooks('Christian novels 2024 2025', 10);
-                displayChristianNovels(books);
+                // Get current date and 30 days ago for precise filtering
+                const currentDate = new Date();
+                const thirtyDaysAgo = new Date(currentDate.getTime() - (30 * 24 * 60 * 60 * 1000));
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = currentDate.getMonth() + 1;
+                
+                // Format dates for Google Books API (YYYY-MM-DD)
+                const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split('T')[0];
+                const currentDateString = currentDate.toISOString().split('T')[0];
+                
+                console.log(`Searching for Christian novels published after: ${thirtyDaysAgoString}`);
+                
+                // Enhanced search queries with proper date filtering for Google Books API
+                const searchQueries = [
+                    // Use Google Books publishedDate filter for last 30 days
+                    `subject:"Christian fiction" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    `subject:"Christian romance" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    `"Christian novel" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    `subject:"inspirational fiction" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    
+                    // If no results in last 30 days, try last 3 months
+                    `subject:"Christian fiction" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    `subject:"Christian romance" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    
+                    // Fallback: newest Christian fiction without strict date filtering
+                    `subject:"Christian fiction" orderBy:newest`,
+                    `subject:"Christian romance" orderBy:newest`,
+                    `"new Christian novel" ${currentYear}`,
+                    
+                    // Search for specific recent Christian authors
+                    `inauthor:"Karen Kingsbury" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    `inauthor:"Francine Rivers" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    `inauthor:"Lynn Austin" publishedDate:${currentYear}-01-01..${currentDateString}`
+                ];
+                
+                let allBooks = [];
+                
+                // Search with multiple queries to get comprehensive results
+                for (const query of searchQueries) {
+                    try {
+                        console.log(`Searching with query: ${query}`);
+                        const books = await searchGoogleBooks(query, 25); // Get more results per query
+                        allBooks = allBooks.concat(books);
+                        console.log(`Found ${books.length} books for query: ${query}`);
+                    } catch (error) {
+                        console.log(`Query failed: ${query}`, error);
+                    }
+                }
+                
+                console.log(`Total books found before filtering: ${allBooks.length}`);
+                
+                // Remove duplicates first
+                const uniqueBooks = allBooks.filter((book, index, self) => 
+                    index === self.findIndex(b => b.title === book.title && b.author === book.author)
+                );
+                
+                console.log(`Unique books after deduplication: ${uniqueBooks.length}`);
+                
+                // Enhanced filtering for Christian novels published in the last 30 days
+                const recentBooks = uniqueBooks.filter(book => {
+                    // Filter by genre/content
+                    const isChristianFiction = book.genre && (
+                        book.genre.toLowerCase().includes('fiction') || 
+                        book.genre.toLowerCase().includes('novel') ||
+                        book.genre.toLowerCase().includes('romance') ||
+                        book.genre.toLowerCase().includes('christian') ||
+                        book.genre.toLowerCase().includes('inspirational')
+                    ) || book.title.toLowerCase().includes('novel') ||
+                        book.title.toLowerCase().includes('christian') ||
+                        book.description.toLowerCase().includes('christian') ||
+                        book.description.toLowerCase().includes('faith') ||
+                        book.description.toLowerCase().includes('god');
+                    
+                    // Stricter date filtering - prioritize truly recent books
+                    let isRecent = false;
+                    
+                    if (book.fullPublishDate && !isNaN(book.fullPublishDate.getTime())) {
+                        // Check if book was published in the last 30 days
+                        if (book.fullPublishDate >= thirtyDaysAgo) {
+                            isRecent = true;
+                            console.log(`Found truly recent book: ${book.title} (${book.originalPublishDate})`);
+                        }
+                        // If no books in last 30 days, accept books from current year
+                        else if (book.fullPublishDate.getFullYear() === currentYear) {
+                            isRecent = true;
+                        }
+                    } else if (book.publishDate && book.publishDate !== 'Unknown') {
+                        // Fallback: check if book is from current year
+                        const publishYear = parseInt(book.publishDate);
+                        if (publishYear === currentYear) {
+                            isRecent = true;
+                        }
+                    }
+                    
+                    return isChristianFiction && isRecent;
+                });
+                
+                console.log(`Books after Christian fiction + date filtering: ${recentBooks.length}`);
+                
+                // Sort by publication date (newest first) and rating
+                const sortedBooks = recentBooks.sort((a, b) => {
+                    // First priority: books with full publication dates within last 30 days
+                    const aIsVeryRecent = a.fullPublishDate && a.fullPublishDate >= thirtyDaysAgo;
+                    const bIsVeryRecent = b.fullPublishDate && b.fullPublishDate >= thirtyDaysAgo;
+                    
+                    if (aIsVeryRecent && !bIsVeryRecent) return -1;
+                    if (!aIsVeryRecent && bIsVeryRecent) return 1;
+                    
+                    // Second priority: full publication date (newer first)
+                    if (a.fullPublishDate && b.fullPublishDate) {
+                        return b.fullPublishDate.getTime() - a.fullPublishDate.getTime();
+                    }
+                    
+                    // Third priority: publication year (newer first)
+                    const aYear = parseInt(a.publishDate) || 0;
+                    const bYear = parseInt(b.publishDate) || 0;
+                    if (aYear !== bYear) {
+                        return bYear - aYear;
+                    }
+                    
+                    // Fourth priority: rating (higher first)
+                    const aRating = parseFloat(a.rating) || 0;
+                    const bRating = parseFloat(b.rating) || 0;
+                    if (aRating !== bRating) {
+                        return bRating - aRating;
+                    }
+                    
+                    // Finally by review count (more reviews first)
+                    return (parseInt(b.reviews) || 0) - (parseInt(a.reviews) || 0);
+                }).slice(0, 15); // Reduced to 15 for better quality results
+                
+                if (sortedBooks.length === 0) {
+                    showAlert(`No recent Christian novels found. This could be because:
+                    • Very few new Christian novels are published in the last 30 days
+                    • Publishers may take time to update Google Books database
+                    • Try "Get Top Bestsellers" for popular Christian fiction
+                    • Check back in a few days for new releases`, 'warning');
+                    return;
+                }
+                
+                console.log(`Final filtered books to display: ${sortedBooks.length}`);
+                
+                // Add metadata about the search results
+                const resultsMetadata = {
+                    searchDate: currentDate.toISOString().split('T')[0],
+                    searchRange: `Last 30 days (since ${thirtyDaysAgoString})`,
+                    totalFound: sortedBooks.length,
+                    queriesUsed: searchQueries.length,
+                    actualDateRange: `${thirtyDaysAgoString} to ${currentDateString}`
+                };
+                
+                displayChristianNovels(sortedBooks, resultsMetadata);
                 
             } catch (error) {
                 console.error('Error discovering novels:', error);
-                showAlert('Error discovering novels. Please check your Google Books API key configuration.', 'error');
+                showAlert('Error discovering novels. Please check your internet connection and try again.', 'error');
             }
         }
 
@@ -1586,19 +1735,70 @@
                 
                 const data = await response.json();
                 
-                return data.items?.map(item => ({
-                    title: item.volumeInfo.title || 'Unknown Title',
-                    author: item.volumeInfo.authors?.[0] || 'Unknown Author',
-                    description: item.volumeInfo.description || 'No description available',
-                    rating: item.volumeInfo.averageRating || 'N/A',
-                    reviews: item.volumeInfo.ratingsCount || 0,
-                    price: item.saleInfo?.listPrice?.amount ? `$${item.saleInfo.listPrice.amount}` : 'Price not available',
-                    genre: item.volumeInfo.categories?.[0] || 'General',
-                    publishDate: item.volumeInfo.publishedDate || 'Unknown',
-                    isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier || 'No ISBN',
-                    image: item.volumeInfo.imageLinks?.thumbnail || '',
-                    googleBooksId: item.id
-                })) || [];
+                return data.items?.map(item => {
+                    // Enhanced data extraction
+                    const volumeInfo = item.volumeInfo || {};
+                    const saleInfo = item.saleInfo || {};
+                    
+                    // Better price extraction
+                    let price = 'Price not available';
+                    if (saleInfo.listPrice?.amount) {
+                        price = `$${saleInfo.listPrice.amount}`;
+                    } else if (saleInfo.retailPrice?.amount) {
+                        price = `$${saleInfo.retailPrice.amount}`;
+                    } else if (saleInfo.saleability === 'FOR_SALE') {
+                        price = 'Available for purchase';
+                    }
+                    
+                    // Better description extraction
+                    let description = volumeInfo.description || 'No description available';
+                    if (description.length > 300) {
+                        description = description.substring(0, 300) + '...';
+                    }
+                    
+                    // Extract genre/category
+                    const categories = volumeInfo.categories || [];
+                    const genre = categories.length > 0 ? categories[0] : 'General';
+                    
+                    // Format publish date - preserve full date for filtering
+                    let publishDate = volumeInfo.publishedDate || 'Unknown';
+                    let publishYear = 'Unknown';
+                    let fullPublishDate = null;
+                    
+                    if (publishDate && publishDate !== 'Unknown') {
+                        try {
+                            fullPublishDate = new Date(publishDate);
+                            publishYear = fullPublishDate.getFullYear().toString();
+                            // Keep the original date for filtering but display year for UI
+                            publishDate = publishYear;
+                        } catch (error) {
+                            console.log('Error parsing date:', publishDate);
+                            publishDate = 'Unknown';
+                        }
+                    }
+                    
+                    return {
+                        title: volumeInfo.title || 'Unknown Title',
+                        author: volumeInfo.authors?.[0] || 'Unknown Author',
+                        description: description,
+                        rating: volumeInfo.averageRating || 'N/A',
+                        reviews: volumeInfo.ratingsCount || 0,
+                        price: price,
+                        genre: genre,
+                        publishDate: publishDate,
+                        fullPublishDate: fullPublishDate, // Keep full date for filtering
+                        originalPublishDate: volumeInfo.publishedDate, // Keep original string
+                        isbn: volumeInfo.industryIdentifiers?.[0]?.identifier || 'No ISBN',
+                        image: volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail || '',
+                        googleBooksId: item.id,
+                        pageCount: volumeInfo.pageCount || 'Unknown',
+                        publisher: volumeInfo.publisher || 'Unknown Publisher',
+                        language: volumeInfo.language || 'en',
+                        maturityRating: volumeInfo.maturityRating || 'NOT_MATURE',
+                        printType: volumeInfo.printType || 'BOOK',
+                        availability: saleInfo.saleability || 'NOT_FOR_SALE'
+                    };
+                }) || [];
                 
             } catch (error) {
                 console.error('Google Books API error:', error);

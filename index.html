@@ -1096,28 +1096,35 @@
                 const currentDate = new Date();
                 const thirtyDaysAgo = new Date(currentDate.getTime() - (30 * 24 * 60 * 60 * 1000));
                 const currentYear = currentDate.getFullYear();
-                const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+                const currentMonth = currentDate.getMonth() + 1;
                 
-                console.log(`Searching for Christian novels published after: ${thirtyDaysAgo.toISOString().split('T')[0]}`);
+                // Format dates for Google Books API (YYYY-MM-DD)
+                const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split('T')[0];
+                const currentDateString = currentDate.toISOString().split('T')[0];
                 
-                // Enhanced search queries specifically targeting very recent books
+                console.log(`Searching for Christian novels published after: ${thirtyDaysAgoString}`);
+                
+                // Enhanced search queries with proper date filtering for Google Books API
                 const searchQueries = [
-                    // Use current year and month for more recent results
-                    `subject:"Christian fiction" intitle:novel orderBy:newest`,
-                    `subject:"Christian romance" intitle:novel orderBy:newest`,
-                    `"Christian fiction" published:${currentYear} orderBy:newest`,
-                    `"new Christian novel" ${currentYear} orderBy:newest`,
-                    `"recently published" "Christian fiction" orderBy:newest`,
-                    `subject:"inspirational fiction" orderBy:newest`,
-                    // Search for specific recent Christian authors known for frequent releases
-                    `inauthor:"Karen Kingsbury" ${currentYear}`,
-                    `inauthor:"Francine Rivers" ${currentYear}`,
-                    `inauthor:"Janette Oke" ${currentYear}`,
-                    `inauthor:"Lynn Austin" ${currentYear}`,
-                    `inauthor:"Tracie Peterson" ${currentYear}`,
-                    // Search for new releases and debut novels
-                    `"new release" "Christian novel" ${currentYear}`,
-                    `"debut" "Christian fiction" ${currentYear}`
+                    // Use Google Books publishedDate filter for last 30 days
+                    `subject:"Christian fiction" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    `subject:"Christian romance" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    `"Christian novel" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    `subject:"inspirational fiction" publishedDate:${thirtyDaysAgoString}..${currentDateString}`,
+                    
+                    // If no results in last 30 days, try last 3 months
+                    `subject:"Christian fiction" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    `subject:"Christian romance" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    
+                    // Fallback: newest Christian fiction without strict date filtering
+                    `subject:"Christian fiction" orderBy:newest`,
+                    `subject:"Christian romance" orderBy:newest`,
+                    `"new Christian novel" ${currentYear}`,
+                    
+                    // Search for specific recent Christian authors
+                    `inauthor:"Karen Kingsbury" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    `inauthor:"Francine Rivers" publishedDate:${currentYear}-01-01..${currentDateString}`,
+                    `inauthor:"Lynn Austin" publishedDate:${currentYear}-01-01..${currentDateString}`
                 ];
                 
                 let allBooks = [];
@@ -1158,27 +1165,25 @@
                         book.description.toLowerCase().includes('faith') ||
                         book.description.toLowerCase().includes('god');
                     
-                    // Filter by publish date - be more flexible but prioritize recent
+                    // Stricter date filtering - prioritize truly recent books
                     let isRecent = false;
-                    if (book.publishDate && book.publishDate !== 'Unknown') {
+                    
+                    if (book.fullPublishDate && !isNaN(book.fullPublishDate.getTime())) {
+                        // Check if book was published in the last 30 days
+                        if (book.fullPublishDate >= thirtyDaysAgo) {
+                            isRecent = true;
+                            console.log(`Found truly recent book: ${book.title} (${book.originalPublishDate})`);
+                        }
+                        // If no books in last 30 days, accept books from current year
+                        else if (book.fullPublishDate.getFullYear() === currentYear) {
+                            isRecent = true;
+                        }
+                    } else if (book.publishDate && book.publishDate !== 'Unknown') {
+                        // Fallback: check if book is from current year
                         const publishYear = parseInt(book.publishDate);
-                        const publishDate = new Date(book.publishDate);
-                        
-                        // Priority 1: Books from current year
                         if (publishYear === currentYear) {
                             isRecent = true;
                         }
-                        // Priority 2: Books from last year if we don't have enough current year books
-                        else if (publishYear === currentYear - 1) {
-                            isRecent = true;
-                        }
-                        // Priority 3: Check if the full date is within last 30 days
-                        else if (!isNaN(publishDate.getTime()) && publishDate >= thirtyDaysAgo) {
-                            isRecent = true;
-                        }
-                    } else {
-                        // If no publish date, include if it's from a search for newest/recent
-                        isRecent = true; // Google Books orderBy:newest should give us recent books
                     }
                     
                     return isChristianFiction && isRecent;
@@ -1188,14 +1193,26 @@
                 
                 // Sort by publication date (newest first) and rating
                 const sortedBooks = recentBooks.sort((a, b) => {
-                    // First sort by publication year (newer first)
+                    // First priority: books with full publication dates within last 30 days
+                    const aIsVeryRecent = a.fullPublishDate && a.fullPublishDate >= thirtyDaysAgo;
+                    const bIsVeryRecent = b.fullPublishDate && b.fullPublishDate >= thirtyDaysAgo;
+                    
+                    if (aIsVeryRecent && !bIsVeryRecent) return -1;
+                    if (!aIsVeryRecent && bIsVeryRecent) return 1;
+                    
+                    // Second priority: full publication date (newer first)
+                    if (a.fullPublishDate && b.fullPublishDate) {
+                        return b.fullPublishDate.getTime() - a.fullPublishDate.getTime();
+                    }
+                    
+                    // Third priority: publication year (newer first)
                     const aYear = parseInt(a.publishDate) || 0;
                     const bYear = parseInt(b.publishDate) || 0;
                     if (aYear !== bYear) {
                         return bYear - aYear;
                     }
                     
-                    // Then by rating (higher first)
+                    // Fourth priority: rating (higher first)
                     const aRating = parseFloat(a.rating) || 0;
                     const bRating = parseFloat(b.rating) || 0;
                     if (aRating !== bRating) {
@@ -1204,14 +1221,14 @@
                     
                     // Finally by review count (more reviews first)
                     return (parseInt(b.reviews) || 0) - (parseInt(a.reviews) || 0);
-                }).slice(0, 20); // Get top 20 most recent results
+                }).slice(0, 15); // Reduced to 15 for better quality results
                 
                 if (sortedBooks.length === 0) {
-                    showAlert(`No Christian novels found published in the last 30 days. This could be because:
-                    • Very few new Christian novels are published daily
-                    • Publishers may not update Google Books immediately
-                    • Try checking again in a few days for new releases
-                    • Use "Get Top Bestsellers" for popular recent books`, 'warning');
+                    showAlert(`No recent Christian novels found. This could be because:
+                    • Very few new Christian novels are published in the last 30 days
+                    • Publishers may take time to update Google Books database
+                    • Try "Get Top Bestsellers" for popular Christian fiction
+                    • Check back in a few days for new releases`, 'warning');
                     return;
                 }
                 
@@ -1220,9 +1237,10 @@
                 // Add metadata about the search results
                 const resultsMetadata = {
                     searchDate: currentDate.toISOString().split('T')[0],
-                    searchRange: `Last 30 days (since ${thirtyDaysAgo.toISOString().split('T')[0]})`,
+                    searchRange: `Last 30 days (since ${thirtyDaysAgoString})`,
                     totalFound: sortedBooks.length,
-                    queriesUsed: searchQueries.length
+                    queriesUsed: searchQueries.length,
+                    actualDateRange: `${thirtyDaysAgoString} to ${currentDateString}`
                 };
                 
                 displayChristianNovels(sortedBooks, resultsMetadata);
@@ -1722,10 +1740,21 @@
                     const categories = volumeInfo.categories || [];
                     const genre = categories.length > 0 ? categories[0] : 'General';
                     
-                    // Format publish date
+                    // Format publish date - preserve full date for filtering
                     let publishDate = volumeInfo.publishedDate || 'Unknown';
-                    if (publishDate && publishDate.length > 4) {
-                        publishDate = new Date(publishDate).getFullYear().toString();
+                    let publishYear = 'Unknown';
+                    let fullPublishDate = null;
+                    
+                    if (publishDate && publishDate !== 'Unknown') {
+                        try {
+                            fullPublishDate = new Date(publishDate);
+                            publishYear = fullPublishDate.getFullYear().toString();
+                            // Keep the original date for filtering but display year for UI
+                            publishDate = publishYear;
+                        } catch (error) {
+                            console.log('Error parsing date:', publishDate);
+                            publishDate = 'Unknown';
+                        }
                     }
                     
                     return {
@@ -1737,6 +1766,8 @@
                         price: price,
                         genre: genre,
                         publishDate: publishDate,
+                        fullPublishDate: fullPublishDate, // Keep full date for filtering
+                        originalPublishDate: volumeInfo.publishedDate, // Keep original string
                         isbn: volumeInfo.industryIdentifiers?.[0]?.identifier || 'No ISBN',
                         image: volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail || '',
                         googleBooksId: item.id,
